@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id          String    @id @default(uuid())
+  username    String    @unique @db.VarChar(50)
+  firstName   String    @db.VarChar(50)
+  lastName    String?   @db.VarChar(50)
+  email       String    @unique @db.VarChar(100)
+  phoneNumber String    @db.Char(13)
+  password    String    @db.Text
+  role        Role      @default(USER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  // Users can have more than one event
+  events            Event[]
+  eventParticipants EventParticipant[]
+  chatRooms         UserChatRoom[]
+}
+
+model EventDress {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(30)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  events Event[]
+}
+
+model EventActivity {
+  id            String    @id @default(uuid())
+  eventId       String
+  title         String    @db.VarChar(100)
+  description   String    @db.Text
+  activityStart DateTime  @db.Date
+  activityEnd   DateTime  @db.Date
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  // Relationships
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  owner       String
+  name        String   @db.VarChar(100)
+  targetDate  DateTime @db.Date
+  eventStart  DateTime @db.Date
+  eventEnd    DateTime @db.Date
+  dress       String
+  venue       String   @db.VarChar(120)
+  memberCount Int      @db.Int
+  coverColor  String?  @db.VarChar(10)
+  coverType   String?  @db.VarChar(10)
+  description String   @db.Text
+  isDone      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  eventOwner        User               @relation(fields: [owner], references: [id])
+  eventDress        EventDress         @relation(fields: [dress], references: [id])
+  eventActivities   EventActivity[]
+  eventParticipants EventParticipant[]
+}
+
+model EventParticipant {
+  id            String   @id @default(uuid())
+  userId        String
+  eventId       String
+  participateAt DateTime
+
+  // Relationships
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model EventNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  eventId   String
+  sentAt    DateTime
+  read      Boolean
+  createdAt DateTime @default(now())
+}
+
+model ChatRoom {
+  id        String    @id @default(uuid())
+  isGroup   Boolean
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  // Relationships
+  users UserChatRoom[]
+}
+
+model Message {
+  id        String    @id @default(uuid())
+  userId    String
+  roomId    String
+  content   String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAT DateTime? @updatedAt
+}
+
+model UserChatRoom {
+  id       String   @id @default(uuid())
+  userId   String
+  roomId   String
+  joinedAt DateTime @default(now())
+
+  // Relationships
+  user User     @relation(fields: [userId], references: [id])
+  room ChatRoom @relation(fields: [roomId], references: [id])
+}
