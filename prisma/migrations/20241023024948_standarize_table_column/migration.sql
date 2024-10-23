@@ -1,83 +1,83 @@
 /*
   Warnings:
 
-  - You are about to drop the `chatroom` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `event` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `eventactivity` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `eventdress` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `eventnotification` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `eventparticipant` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `message` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `profile` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `user` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `userchatroom` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `ChatRoom` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Event` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EventActivity` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EventDress` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EventNotification` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EventParticipant` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Message` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Profile` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `UserChatRoom` table. If the table is not empty, all the data it contains will be lost.
 
 */
 -- DropForeignKey
-ALTER TABLE `event` DROP FOREIGN KEY `Event_dressId_fkey`;
+ALTER TABLE `Event` DROP FOREIGN KEY `Event_dressId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `event` DROP FOREIGN KEY `Event_userId_fkey`;
+ALTER TABLE `Event` DROP FOREIGN KEY `Event_userId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `eventactivity` DROP FOREIGN KEY `EventActivity_eventId_fkey`;
+ALTER TABLE `EventActivity` DROP FOREIGN KEY `EventActivity_eventId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `eventnotification` DROP FOREIGN KEY `EventNotification_eventId_fkey`;
+ALTER TABLE `EventNotification` DROP FOREIGN KEY `EventNotification_eventId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `eventnotification` DROP FOREIGN KEY `EventNotification_userId_fkey`;
+ALTER TABLE `EventNotification` DROP FOREIGN KEY `EventNotification_userId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `eventparticipant` DROP FOREIGN KEY `EventParticipant_eventId_fkey`;
+ALTER TABLE `EventParticipant` DROP FOREIGN KEY `EventParticipant_eventId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `eventparticipant` DROP FOREIGN KEY `EventParticipant_userId_fkey`;
+ALTER TABLE `EventParticipant` DROP FOREIGN KEY `EventParticipant_userId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `message` DROP FOREIGN KEY `Message_roomId_fkey`;
+ALTER TABLE `Message` DROP FOREIGN KEY `Message_roomId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `message` DROP FOREIGN KEY `Message_userId_fkey`;
+ALTER TABLE `Message` DROP FOREIGN KEY `Message_userId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `profile` DROP FOREIGN KEY `Profile_userId_fkey`;
+ALTER TABLE `Profile` DROP FOREIGN KEY `Profile_userId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `userchatroom` DROP FOREIGN KEY `UserChatRoom_roomId_fkey`;
+ALTER TABLE `UserChatRoom` DROP FOREIGN KEY `UserChatRoom_roomId_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `userchatroom` DROP FOREIGN KEY `UserChatRoom_userId_fkey`;
+ALTER TABLE `UserChatRoom` DROP FOREIGN KEY `UserChatRoom_userId_fkey`;
 
 -- DropTable
-DROP TABLE `chatroom`;
+DROP TABLE `ChatRoom`;
 
 -- DropTable
-DROP TABLE `event`;
+DROP TABLE `Event`;
 
 -- DropTable
-DROP TABLE `eventactivity`;
+DROP TABLE `EventActivity`;
 
 -- DropTable
-DROP TABLE `eventdress`;
+DROP TABLE `EventDress`;
 
 -- DropTable
-DROP TABLE `eventnotification`;
+DROP TABLE `EventNotification`;
 
 -- DropTable
-DROP TABLE `eventparticipant`;
+DROP TABLE `EventParticipant`;
 
 -- DropTable
-DROP TABLE `message`;
+DROP TABLE `Message`;
 
 -- DropTable
-DROP TABLE `profile`;
+DROP TABLE `Profile`;
 
 -- DropTable
-DROP TABLE `user`;
+DROP TABLE `User`;
 
 -- DropTable
-DROP TABLE `userchatroom`;
+DROP TABLE `UserChatRoom`;
 
 -- CreateTable
 CREATE TABLE `users` (
