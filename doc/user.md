@@ -57,7 +57,7 @@ Status Code: `400`
 
 ## Login User
 
-Endpoint: `POST /api/users/login`
+Endpoint: `POST /api/authentications/login`
 
 Request Body:
 
@@ -98,7 +98,7 @@ Status Code: `400`
 
 ## Verify Your Otp
 
-Endpoint: `POST /api/users/verify-login`
+Endpoint: `POST /api/authentications/verify-login`
 
 Headers:
 
@@ -123,7 +123,8 @@ Response `success`:
   "message": "User successfuly logged in",
   "data": {
     "email": "upin@gmail.com",
-    "token": "access_token"
+    "accessToken": "access_token",
+    "refreshToken": "refresh_token"
   }
 }
 ```
@@ -138,6 +139,59 @@ Status Code: `400`
 {
   "status": "fail",
   "message": "Failed to verify otp"
+}
+```
+
+## Renew Access Token
+
+Endpoint: `PUT /api/authentications/refresh`
+
+headers:
+
+| Param         | Value                  |
+|---------------|------------------------|
+| Authorization | Bearer `refresh_token` |
+
+Response `success`:
+
+```json
+
+{
+  "status": "success",
+  "message": "Successfully renew access token",
+  "data": {
+    "accessToken": "new_access_token"
+  }
+}
+```
+
+## Logout User
+
+Endpoint: `DELETE /api/authentications`
+
+Headers:
+
+| Param         | Value                  |
+|---------------|------------------------|
+| Authorization | Bearer `refresh_token` |
+
+Response `success`:
+
+```json
+{
+  "status": "success",
+  "message": "Successfully logout."
+}
+```
+
+Response `fail`:
+
+Status Code: `400`:
+
+```json
+{
+  "status": "fail",
+  "message": "Failed to logout, token invalid."
 }
 ```
 
@@ -307,27 +361,5 @@ Status Code: `400`
       "Username too short"
     ]
   }
-}
-```
-
-## Logout User
-
-Endpoint: `DELETE /api/users/current`
-
-Headers:
-
-| Param         | Value          |
-|---------------|----------------|
-| Authorization | Bearer `token` |
-
-Response `success`:
-
-Status Code: `200`
-
-```json
-{
-  "status": "success",
-  "message": "Successfully logout",
-  "data": true
 }
 ```
