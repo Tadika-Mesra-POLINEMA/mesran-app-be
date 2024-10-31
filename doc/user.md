@@ -48,7 +48,9 @@ Status Code: `400`
   "status": "error",
   "message": "Bad Request",
   "errors": {
-    "email": ["Email tidak valid"]
+    "email": [
+      "Email tidak valid"
+    ]
   }
 }
 ```
@@ -71,15 +73,14 @@ Request Body:
 
 Response `success`:
 
-Status Code: `400`
+Status Code: `200`:
 
 ```json
 {
   "status": "success",
-  "message": "Login success",
+  "message": "User successfuly logged in, please use the otp code and provide verification key to claim your access token",
   "data": {
-    "email": "upin@gmail.com",
-    "token": "session_id_auto_generated"
+    "verificationKey": "generated_key"
   }
 }
 ```
@@ -95,6 +96,51 @@ Status Code: `400`
 }
 ```
 
+## Verify Your Otp
+
+Endpoint: `POST /api/users/verify-login`
+
+Headers:
+
+| Param         | Value          |
+|---------------|----------------|
+| Authorization | Bearer `token` |
+
+Request Body:
+
+```json
+{
+  "verificationKey": "verification_key",
+  "otp": "123456"
+}
+```
+
+Response `success`:
+
+```json
+{
+  "status": "success",
+  "message": "User successfuly logged in",
+  "data": {
+    "email": "upin@gmail.com",
+    "token": "access_token"
+  }
+}
+```
+
+`Nb`: You can use the token to access the protected routes
+
+Response `fail`:
+
+Status Code: `400`
+
+```json
+{
+  "status": "fail",
+  "message": "Failed to verify otp"
+}
+```
+
 ## Add Profile
 
 Endpoint: `PUT /api/users/profile`
@@ -102,7 +148,7 @@ Endpoint: `PUT /api/users/profile`
 Headers:
 
 | Param         | Value          |
-| ------------- | -------------- |
+|---------------|----------------|
 | Authorization | Bearer `token` |
 
 Request Body:
@@ -151,7 +197,9 @@ Status Code: `400`
   "status": "error",
   "message": "Bad request",
   "errors": {
-    "username": ["Username maximum 100 characters"]
+    "username": [
+      "Username maximum 100 characters"
+    ]
   }
 }
 ```
@@ -163,7 +211,7 @@ Endpoint: `GET /api/users/me`
 Headers:
 
 | Param         | Value          |
-| ------------- | -------------- |
+|---------------|----------------|
 | Authorization | Bearer `token` |
 
 Response `success`:
@@ -172,14 +220,14 @@ Status Code: `200`
 
 ```json
 {
-    "status": "success",
-    "message": "Successfully obtained user profile"
-    "data": {
-        "email": "upin@gmail.com",
-        "phone": "081**********",
-        "role": "USER",
-        "profile": {}
-    }
+  "status": "success",
+  "message": "Successfully obtained user profile"
+  "data": {
+    "email": "upin@gmail.com",
+    "phone": "081**********",
+    "role": "USER",
+    "profile": {}
+  }
 }
 ```
 
@@ -190,7 +238,7 @@ Endpoint: `PUT /api/users`
 Headers:
 
 | Param         | Value          |
-| ------------- | -------------- |
+|---------------|----------------|
 | Authorization | Bearer `token` |
 
 Request Body:
@@ -219,16 +267,19 @@ Endpoint: `PATCH /api/users/profile`
 Headers:
 
 | Param         | Value          |
-| ------------- | -------------- |
+|---------------|----------------|
 | Authorization | Bearer `token` |
 
 Request Body:
 
 ```json
 {
-  "username": "siapin", // optional, if want to change username
-  "firstname": "Apin", // optional, if want to change firstname
-  "lastname": "Upin" // optional, if want to change lastname
+  "username": "siapin",
+  // optional, if want to change username
+  "firstname": "Apin",
+  // optional, if want to change firstname
+  "lastname": "Upin"
+  // optional, if want to change lastname
 }
 ```
 
@@ -252,7 +303,9 @@ Status Code: `400`
   "status": "error",
   "message": "Bad request",
   "errors": {
-    "username": ["Username too short"]
+    "username": [
+      "Username too short"
+    ]
   }
 }
 ```
@@ -264,7 +317,7 @@ Endpoint: `DELETE /api/users/current`
 Headers:
 
 | Param         | Value          |
-| ------------- | -------------- |
+|---------------|----------------|
 | Authorization | Bearer `token` |
 
 Response `success`:
