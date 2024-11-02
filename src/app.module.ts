@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { UserModule } from './user/user.module';
+import { CommonModule } from './common/common.module';
+import { MailModule } from './mail/mail.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    CacheModule.register({ isGlobal: true, ttl: 0 }),
+    UserModule,
+    CommonModule,
+    MailModule,
+    AuthModule,
+  ],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useValue: CacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

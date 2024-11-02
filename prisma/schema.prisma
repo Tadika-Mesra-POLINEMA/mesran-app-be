@@ -19,116 +19,162 @@ enum Role {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  username    String    @unique @db.VarChar(50)
-  firstName   String    @db.VarChar(50)
-  lastName    String?   @db.VarChar(50)
-  email       String    @unique @db.VarChar(100)
-  phoneNumber String    @db.Char(13)
-  password    String    @db.Text
-  role        Role      @default(USER)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt
+  id         String    @id @default(uuid())
+  email      String    @unique @db.VarChar(100)
+  phone      String    @db.Char(13)
+  password   String    @db.Text
+  role       Role      @default(USER)
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
 
   // Users can have more than one event
-  events            Event[]
-  eventParticipants EventParticipant[]
-  chatRooms         UserChatRoom[]
+  profile            Profile?
+  events             Event[]
+  event_participants EventParticipant[]
+  chat_rooms         UserChatRoom[]
+  messages           Message[]
+  notifications      EventNotification[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  user_id   String  @unique
+  username  String  @unique @db.VarChar(50)
+  firstname String  @db.VarChar(50)
+  lastname  String? @db.VarChar(50)
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("profiles")
+}
+
+model Authentication {
+  id    String @id @default(uuid())
+  token String @unique
+
+  @@map("authentications")
 }
 
 model EventDress {
-  id        String   @id @default(uuid())
-  name      String   @db.VarChar(30)
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  name       String   @db.VarChar(30)
+  created_at DateTime @default(now())
 
   // Relationships
   events Event[]
+
+  @@map("event_dresses")
 }
 
 model EventActivity {
-  id            String    @id @default(uuid())
-  eventId       String
-  title         String    @db.VarChar(100)
-  description   String    @db.Text
-  activityStart DateTime  @db.Date
-  activityEnd   DateTime  @db.Date
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime? @updatedAt
+  id             String    @id @default(uuid())
+  event_id       String
+  title          String    @db.VarChar(100)
+  description    String    @db.Text
+  activity_start DateTime  @db.Date
+  activity_end   DateTime  @db.Date
+  created_at     DateTime  @default(now())
+  updated_at     DateTime? @updatedAt
 
   // Relationships
-  event Event @relation(fields: [eventId], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@map("event_activities")
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  owner       String
-  name        String   @db.VarChar(100)
-  targetDate  DateTime @db.Date
-  eventStart  DateTime @db.Date
-  eventEnd    DateTime @db.Date
-  dress       String
-  venue       String   @db.VarChar(120)
-  memberCount Int      @db.Int
-  coverColor  String?  @db.VarChar(10)
-  coverType   String?  @db.VarChar(10)
-  description String   @db.Text
-  isDone      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  user_id      String
+  name         String   @db.VarChar(100)
+  target_data  DateTime @db.Date
+  event_start  DateTime
+  event_end    DateTime
+  dress_id     String
+  venue        String   @db.VarChar(120)
+  member_count Int      @db.Int
+  cover_color  String?  @db.VarChar(10)
+  cover_type   String?  @db.VarChar(10)
+  description  String   @db.Text
+  is_done      Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   // Relationships
-  eventOwner        User               @relation(fields: [owner], references: [id])
-  eventDress        EventDress         @relation(fields: [dress], references: [id])
-  eventActivities   EventActivity[]
-  eventParticipants EventParticipant[]
+  owner         User                @relation(fields: [user_id], references: [id])
+  dress         EventDress          @relation(fields: [dress_id], references: [id])
+  activities    EventActivity[]
+  participants  EventParticipant[]
+  notifications EventNotification[]
+
+  @@map("events")
 }
 
 model EventParticipant {
-  id            String   @id @default(uuid())
-  userId        String
-  eventId       String
-  participateAt DateTime
+  id             String   @id @default(uuid())
+  user_id        String
+  event_id       String
+  participate_at DateTime
 
   // Relationships
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [user_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@map("event_participants")
 }
 
 model EventNotification {
-  id        String   @id @default(uuid())
-  userId    String
-  eventId   String
-  sentAt    DateTime
-  read      Boolean
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  user_id    String
+  event_id   String
+  sent_at    DateTime
+  read       Boolean
+  created_at DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@map("event_notifications")
 }
 
 model ChatRoom {
-  id        String    @id @default(uuid())
-  isGroup   Boolean
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
+  id         String    @id @default(uuid())
+  is_group   Boolean
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
 
   // Relationships
-  users UserChatRoom[]
+  users    UserChatRoom[]
+  messages Message[]
+
+  @@map("chat_rooms")
 }
 
 model Message {
-  id        String    @id @default(uuid())
-  userId    String
-  roomId    String
-  content   String    @db.Text
-  createdAt DateTime  @default(now())
-  updatedAT DateTime? @updatedAt
+  id         String    @id @default(uuid())
+  user_id    String
+  room_id    String
+  content    String    @db.Text
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user     User     @relation(fields: [user_id], references: [id])
+  chatroom ChatRoom @relation(fields: [room_id], references: [id])
+
+  @@map("messages")
 }
 
 model UserChatRoom {
-  id       String   @id @default(uuid())
-  userId   String
-  roomId   String
-  joinedAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  user_id   String
+  room_id   String
+  joined_at DateTime @default(now())
 
   // Relationships
-  user User     @relation(fields: [userId], references: [id])
-  room ChatRoom @relation(fields: [roomId], references: [id])
+  user User     @relation(fields: [user_id], references: [id])
+  room ChatRoom @relation(fields: [room_id], references: [id])
+
+  @@unique([user_id, room_id])
+  @@map("user_chat_rooms")
 }
