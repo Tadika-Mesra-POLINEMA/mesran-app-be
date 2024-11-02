@@ -7,14 +7,16 @@ import * as bcrypt from 'bcrypt';
 // Services
 import { PrismaService } from 'src/common/prisma.service';
 
-// Models
+// Entities
+import { UserProfile } from 'src/user/entities/user-profile.entity';
+
+// Dtos
 import {
   RegisterUserRequest,
   RegisterUserResponse,
-  UpdateProfileUserRequest,
-  UpdateUserRequest,
-  UserProfile,
-} from 'src/model/user.model';
+} from 'src/user/dto/register-user.dto';
+import { UpdateUserRequest } from 'src/user/dto/update-user.dto';
+import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Validators
 import { ValidationService } from 'src/common/validation.service';

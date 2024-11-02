@@ -11,17 +11,17 @@ import { MailService } from 'src/mail/mail.service';
 import { OtpService } from 'src/common/otp.service';
 import { JwtService } from '@nestjs/jwt';
 
-// Types
+// Dtos
+import { LoginRequest, LoginResponse } from 'src/auth/dto/login.dto';
 import {
-  LoginRequest,
-  LoginResponse,
-  LogoutRequest,
-  OTP,
-  RefreshRequest,
-  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/auth.model';
+} from 'src/auth/dto/verify-login.dto';
+import { RefreshRequest, RefreshResponse } from 'src/auth/dto/renew-token.dto';
+import { LogoutRequest } from 'src/auth/dto/logout.dto';
+
+// Models
+import { OTP } from 'src/auth/entities/otp.entity';
 
 // Validators
 import { AuthValidator } from 'src/auth/auth.validator';

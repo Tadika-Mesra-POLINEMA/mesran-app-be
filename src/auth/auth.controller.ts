@@ -12,16 +12,16 @@ import {
 import { AuthService } from 'src/auth/auth.service';
 
 // Types
-import { WebResponse } from 'src/model/web.model';
+import { WebResponse } from 'src/app.dto';
+
+// Dtos
+import { LoginRequest, LoginResponse } from 'src/auth/dto/login.dto';
 import {
-  LoginRequest,
-  LoginResponse,
-  LogoutRequest,
-  RefreshRequest,
-  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/auth.model';
+} from 'src/auth/dto/verify-login.dto';
+import { RefreshRequest, RefreshResponse } from 'src/auth/dto/renew-token.dto';
+import { LogoutRequest } from 'src/auth/dto/logout.dto';
 
 @Controller('/api/authentications')
 export class AuthController {

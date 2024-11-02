@@ -15,15 +15,17 @@ import { User } from '@prisma/client';
 // Services
 import { UserService } from './user.service';
 
-// Types
+// Entities
+import { UserProfile } from './entities/user-profile.entity';
+
+// Dtos
+import { AuthenticatedRequest, WebResponse } from 'src/app.dto';
 import {
   RegisterUserRequest,
   RegisterUserResponse,
-  UpdateProfileUserRequest,
-  UpdateUserRequest,
-  UserProfile,
-} from 'src/model/user.model';
-import { AuthenticatedRequest, WebResponse } from 'src/model/web.model';
+} from 'src/user/dto/register-user.dto';
+import { UpdateUserRequest } from 'src/user/dto/update-user.dto';
+import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Guards
 import { AuthGuard } from 'src/auth/auth.guard';
