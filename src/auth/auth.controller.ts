@@ -15,7 +15,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { WebResponse } from 'src/app.dto';
 
 // Dtos
-import { LoginRequest, LoginResponse } from 'src/auth/dto/login.dto';
+import { EmailLogin, PhoneLogin, LoginResponse } from 'src/auth/dto/login.dto';
 import {
   VerifyLoginRequest,
   VerifyLoginResponse,
@@ -30,7 +30,7 @@ export class AuthController {
   @Post('/')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() request: LoginRequest,
+    @Body() request: EmailLogin | PhoneLogin,
   ): Promise<WebResponse<LoginResponse>> {
     const response = await this.authService.login(request);
 

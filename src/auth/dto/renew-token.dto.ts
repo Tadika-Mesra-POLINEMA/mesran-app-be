@@ -1,7 +1,7 @@
-export interface RefreshRequest {
+export class RefreshRequest {
   refreshToken: string;
 }
 
-export interface RefreshResponse {
+export class RefreshResponse {
   accessToken: string;
 }

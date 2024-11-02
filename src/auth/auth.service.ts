@@ -12,7 +12,7 @@ import { OtpService } from 'src/common/otp.service';
 import { JwtService } from '@nestjs/jwt';
 
 // Dtos
-import { LoginRequest, LoginResponse } from 'src/auth/dto/login.dto';
+import { EmailLogin, PhoneLogin, LoginResponse } from 'src/auth/dto/login.dto';
 import {
   VerifyLoginRequest,
   VerifyLoginResponse,
@@ -56,7 +56,7 @@ export class AuthService {
    * @param request Payload to login
    * @returns Login response included verification key and OTP
    */
-  async login(request: LoginRequest): Promise<LoginResponse> {
+  async login(request: EmailLogin | PhoneLogin): Promise<LoginResponse> {
     this.logger.info(`Logged in user ${JSON.stringify(request)}`);
 
     const loginRequest = this.validationService.validate(

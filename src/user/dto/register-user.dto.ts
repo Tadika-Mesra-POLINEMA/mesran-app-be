@@ -1,10 +1,10 @@
-export interface RegisterUserRequest {
+export class RegisterUserRequest {
   email: string;
   phone: string;
   password: string;
   role: 'USER' | 'ADMIN';
 }
 
-export interface RegisterUserResponse {
+export class RegisterUserResponse {
   email: string;
 }

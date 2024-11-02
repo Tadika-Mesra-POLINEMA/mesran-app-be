@@ -1,9 +1,9 @@
-export interface VerifyLoginRequest {
+export class VerifyLoginRequest {
   verificationKey: string;
   otp: string;
 }
 
-export interface VerifyLoginResponse {
+export class VerifyLoginResponse {
   email: string;
   accessToken: string;
   refreshToken: string;

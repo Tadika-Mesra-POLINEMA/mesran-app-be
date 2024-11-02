@@ -1,16 +1,14 @@
-interface EmailLogin {
+export class EmailLogin {
   email: string;
   password: string;
 }
 
-interface PhoneLogin {
+export class PhoneLogin {
   phone: string;
   password: string;
 }
 
-export type LoginRequest = EmailLogin | PhoneLogin;
-
-export interface LoginResponse {
+export class LoginResponse {
   verificationKey: string;
   otp: string;
 }
