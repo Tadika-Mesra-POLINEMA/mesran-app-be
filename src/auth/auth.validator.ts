@@ -51,4 +51,16 @@ export class AuthValidator {
       message: 'OTP must be 6 character.',
     }),
   });
+
+  static readonly REFRESH: ZodType = z.object({
+    refreshToken: z.string().min(1, {
+      message: 'Refresh token is required.',
+    }),
+  });
+
+  static readonly LOGOUT: ZodType = z.object({
+    refreshToken: z.string().min(1, {
+      message: 'Refresh token is required.',
+    }),
+  });
 }

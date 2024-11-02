@@ -45,9 +45,16 @@ model Profile {
   firstname String  @db.VarChar(50)
   lastname  String? @db.VarChar(50)
 
-  User User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
 
   @@map("profiles")
+}
+
+model Authentication {
+  id    String @id @default(uuid())
+  token String @unique
+
+  @@map("authentications")
 }
 
 model EventDress {

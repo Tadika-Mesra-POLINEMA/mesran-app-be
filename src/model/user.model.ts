@@ -9,35 +9,18 @@ export interface RegisterUserResponse {
   email: string;
 }
 
-interface EmailLogin {
-  email: string;
-  password: string;
+export interface UserProfile {
+  username: string;
+  firstname: string;
+  lastname: string;
 }
 
-interface PhoneLogin {
+export interface UpdateUserRequest {
   phone: string;
-  password: string;
 }
 
-export type LoginRequest = EmailLogin | PhoneLogin;
-
-export interface LoginResponse {
-  verificationKey: string;
-  otp: string;
-}
-
-export interface OTP {
-  userId: string;
-  code: string;
-}
-
-export interface VerifyLoginRequest {
-  verificationKey: string;
-  otp: string;
-}
-
-export interface VerifyLoginResponse {
-  email: string;
-  accessToken: string;
-  refreshToken: string;
+export interface UpdateProfileUserRequest {
+  username: string;
+  firstname: string;
+  lastname: string;
 }

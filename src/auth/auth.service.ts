@@ -15,10 +15,13 @@ import { JwtService } from '@nestjs/jwt';
 import {
   LoginRequest,
   LoginResponse,
+  LogoutRequest,
   OTP,
+  RefreshRequest,
+  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/user.model';
+} from 'src/model/auth.model';
 
 // Validators
 import { AuthValidator } from 'src/auth/auth.validator';
@@ -26,6 +29,7 @@ import { AuthValidator } from 'src/auth/auth.validator';
 // Exceptions
 import { InvariantException } from 'src/common/exception/invariant.exception';
 import { AuthenticationException } from 'src/common/exception/authentication.exception';
+import { NotfoundException } from 'src/common/exception/notfound.exception';
 
 // Models
 import { User } from '@prisma/client';
@@ -46,6 +50,12 @@ export class AuthService {
     private otpService: OtpService,
   ) {}
 
+  /**
+   * Method to login user
+   *
+   * @param request Payload to login
+   * @returns Login response included verification key and OTP
+   */
   async login(request: LoginRequest): Promise<LoginResponse> {
     this.logger.info(`Logged in user ${JSON.stringify(request)}`);
 
@@ -107,6 +117,12 @@ export class AuthService {
     };
   }
 
+  /**
+   * Method to verify OTP
+   *
+   * @param request Payload to verify OTP
+   * @returns Login response included email, access token, and refresh token
+   */
   async verifyOtp(request: VerifyLoginRequest): Promise<VerifyLoginResponse> {
     this.logger.info(`Verifying OTP ${JSON.stringify(request)}`);
 
@@ -129,9 +145,65 @@ export class AuthService {
       throw new AuthenticationException('OTP is not match.');
     }
 
+    const user: User = await this.prismaService.user
+      .findUnique({
+        where: {
+          id: otp.userId,
+        },
+      })
+      .catch(() => {
+        throw new AuthenticationException('User not found.');
+      });
+
+    const accessToken: string = this.jwtService.sign(
+      { id: user.id },
+      { expiresIn: '1h' },
+    );
+    const refreshToken: string = this.jwtService.sign(
+      { id: user.id },
+      { expiresIn: '7d' },
+    );
+
+    await this.prismaService.authentication.create({
+      data: {
+        token: refreshToken,
+      },
+    });
+
+    return {
+      email: user.email,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  /**
+   * Method to refresh token
+   *
+   * @param request Payload to refresh token
+   * @returns Refresh response included access token
+   */
+  async refresh(request: RefreshRequest): Promise<RefreshResponse> {
+    this.logger.info(`Refreshing token ${JSON.stringify(request)}`);
+
+    const verifyRequest: RefreshRequest = this.validationService.validate(
+      AuthValidator.REFRESH,
+      request,
+    );
+
+    const refreshToken = await this.prismaService.authentication.findUnique({
+      where: {
+        token: verifyRequest.refreshToken,
+      },
+    });
+
+    if (!refreshToken) {
+      throw new NotfoundException('Token not found');
+    }
+
     const user: User = await this.prismaService.user.findUnique({
       where: {
-        id: otp.userId,
+        id: this.jwtService.decode(refreshToken.token).id,
       },
     });
 
@@ -143,15 +215,33 @@ export class AuthService {
       { id: user.id },
       { expiresIn: '1h' },
     );
-    const refreshToken: string = this.jwtService.sign(
-      { id: user.id },
-      { expiresIn: '7d' },
-    );
 
     return {
-      email: user.email,
       accessToken,
-      refreshToken,
     };
+  }
+
+  /**
+   * Method to logout user
+   *
+   * @param request Payload to logout
+   */
+  async logout(request: LogoutRequest): Promise<void> {
+    this.logger.info(`Logging out user ${JSON.stringify(request)}`);
+
+    const logoutRequest = this.validationService.validate(
+      AuthValidator.LOGOUT,
+      request,
+    );
+
+    await this.prismaService.authentication
+      .delete({
+        where: {
+          token: logoutRequest.refreshToken,
+        },
+      })
+      .catch(() => {
+        throw new NotfoundException('Token not found');
+      });
   }
 }

@@ -35,7 +35,14 @@ Status Code: `400`
 ```json
 {
   "status": "fail",
-  "message": "User already registered"
+  "message": "Email already registered"
+}
+```
+
+```json
+{
+  "status": "fail",
+  "message": "Phone already registered"
 }
 ```
 
@@ -48,9 +55,7 @@ Status Code: `400`
   "status": "error",
   "message": "Bad Request",
   "errors": {
-    "email": [
-      "Email tidak valid"
-    ]
+    "email": ["Email tidak valid"]
   }
 }
 ```
@@ -78,33 +83,37 @@ Status Code: `200`:
 ```json
 {
   "status": "success",
-  "message": "User successfuly logged in, please use the otp code and provide verification key to claim your access token",
+  "message": "User successfully logged in, please use the otp code and provide verification key to claim your access token",
   "data": {
-    "verificationKey": "generated_key"
+    "verificationKey": "generated_key",
+    "otp": "otp_code"
   }
 }
 ```
 
 Response `fail`:
 
-Status Code: `400`
+Status Code: `400`, Not put email or phone
 
 ```json
 {
   "status": "fail",
-  "message": "Login failed, Wrong credentials"
+  "message": "You need to put email or phone number"
+}
+```
+
+Status Code: `400`, Invalid email or phone and or password
+
+```json
+{
+  "status": "fail",
+  "message": "Credentials not match."
 }
 ```
 
 ## Verify Your Otp
 
 Endpoint: `POST /api/authentications/verify-login`
-
-Headers:
-
-| Param         | Value          |
-|---------------|----------------|
-| Authorization | Bearer `token` |
 
 Request Body:
 
@@ -120,7 +129,7 @@ Response `success`:
 ```json
 {
   "status": "success",
-  "message": "User successfuly logged in",
+  "message": "User successfully logged in",
   "data": {
     "email": "upin@gmail.com",
     "accessToken": "access_token",
@@ -133,12 +142,21 @@ Response `success`:
 
 Response `fail`:
 
-Status Code: `400`
+Status Code: `400`, Otp not found or expired
 
 ```json
 {
   "status": "fail",
-  "message": "Failed to verify otp"
+  "message": "OTP is expired."
+}
+```
+
+Status Code: `400`, Otp not match
+
+```json
+{
+  "status": "fail",
+  "message": "OTP is not match."
 }
 ```
 
@@ -146,16 +164,17 @@ Status Code: `400`
 
 Endpoint: `PUT /api/authentications/refresh`
 
-headers:
+Request Body:
 
-| Param         | Value                  |
-|---------------|------------------------|
-| Authorization | Bearer `refresh_token` |
+```json
+{
+  "refreshToken": "your_refresh_token"
+}
+```
 
 Response `success`:
 
 ```json
-
 {
   "status": "success",
   "message": "Successfully renew access token",
@@ -165,15 +184,28 @@ Response `success`:
 }
 ```
 
+Response `client-error`:
+
+Status Code: `400`
+
+```json
+{
+  "status": "error",
+  "message": "message"
+}
+```
+
 ## Logout User
 
 Endpoint: `DELETE /api/authentications`
 
-Headers:
+Request Body:
 
-| Param         | Value                  |
-|---------------|------------------------|
-| Authorization | Bearer `refresh_token` |
+```json
+{
+  "refreshToken": "your_refresh_token"
+}
+```
 
 Response `success`:
 
@@ -191,18 +223,18 @@ Status Code: `400`:
 ```json
 {
   "status": "fail",
-  "message": "Failed to logout, token invalid."
+  "message": "Token not found."
 }
 ```
 
 ## Add Profile
 
-Endpoint: `PUT /api/users/profile`
+Endpoint: `POST /api/users/profile`
 
 Headers:
 
 | Param         | Value          |
-|---------------|----------------|
+| ------------- | -------------- |
 | Authorization | Bearer `token` |
 
 Request Body:
@@ -251,9 +283,7 @@ Status Code: `400`
   "status": "error",
   "message": "Bad request",
   "errors": {
-    "username": [
-      "Username maximum 100 characters"
-    ]
+    "username": ["Username maximum 100 characters"]
   }
 }
 ```
@@ -265,7 +295,7 @@ Endpoint: `GET /api/users/me`
 Headers:
 
 | Param         | Value          |
-|---------------|----------------|
+| ------------- | -------------- |
 | Authorization | Bearer `token` |
 
 Response `success`:
@@ -292,7 +322,7 @@ Endpoint: `PUT /api/users`
 Headers:
 
 | Param         | Value          |
-|---------------|----------------|
+| ------------- | -------------- |
 | Authorization | Bearer `token` |
 
 Request Body:
@@ -321,7 +351,7 @@ Endpoint: `PATCH /api/users/profile`
 Headers:
 
 | Param         | Value          |
-|---------------|----------------|
+| ------------- | -------------- |
 | Authorization | Bearer `token` |
 
 Request Body:
@@ -357,9 +387,7 @@ Status Code: `400`
   "status": "error",
   "message": "Bad request",
   "errors": {
-    "username": [
-      "Username too short"
-    ]
+    "username": ["Username too short"]
   }
 }
 ```

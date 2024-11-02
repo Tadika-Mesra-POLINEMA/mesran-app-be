@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Put,
+} from '@nestjs/common';
 
 // Services
 import { AuthService } from 'src/auth/auth.service';
@@ -8,16 +16,19 @@ import { WebResponse } from 'src/model/web.model';
 import {
   LoginRequest,
   LoginResponse,
+  LogoutRequest,
+  RefreshRequest,
+  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/user.model';
+} from 'src/model/auth.model';
 
 @Controller('/api/authentications')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() request: LoginRequest,
   ): Promise<WebResponse<LoginResponse>> {
@@ -31,7 +42,7 @@ export class AuthController {
   }
 
   @Post('/verify-login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async verifyOtp(
     @Body() request: VerifyLoginRequest,
   ): Promise<WebResponse<VerifyLoginResponse>> {
@@ -41,6 +52,31 @@ export class AuthController {
       status: 'success',
       message: 'Successfully verified OTP',
       data: response,
+    };
+  }
+
+  @Put('/refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Body() request: RefreshRequest,
+  ): Promise<WebResponse<RefreshResponse>> {
+    const response = await this.authService.refresh(request);
+
+    return {
+      status: 'success',
+      message: 'Successfully renew access token',
+      data: response,
+    };
+  }
+
+  @Delete('/')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Body() request: LogoutRequest): Promise<WebResponse<null>> {
+    await this.authService.logout(request);
+
+    return {
+      status: 'success',
+      message: 'Successfully logout.',
     };
   }
 }
