@@ -6,7 +6,7 @@ import { format, transports } from 'winston';
 import { PrismaService } from './prisma.service';
 import { ValidationService } from './validation.service';
 import { APP_FILTER } from '@nestjs/core';
-import { ErrorFilter } from './error.filter';
+import { ErrorFilter } from 'src/common/filters/error.filter';
 import { OtpService } from './otp.service';
 
 @Global()

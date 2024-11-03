@@ -27,9 +27,9 @@ import { OTP } from 'src/auth/entities/otp.entity';
 import { AuthValidator } from 'src/auth/auth.validator';
 
 // Exceptions
-import { InvariantException } from 'src/common/exception/invariant.exception';
-import { AuthenticationException } from 'src/common/exception/authentication.exception';
-import { NotfoundException } from 'src/common/exception/notfound.exception';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
+import { AuthenticationException } from 'src/common/exceptions/authentication.exception';
+import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 
 // Models
 import { User } from '@prisma/client';
@@ -156,7 +156,7 @@ export class AuthService {
       });
 
     const accessToken: string = this.jwtService.sign(
-      { id: user.id },
+      { id: user.id, role: user.role },
       { expiresIn: '1h' },
     );
     const refreshToken: string = this.jwtService.sign(
@@ -212,7 +212,7 @@ export class AuthService {
     }
 
     const accessToken: string = this.jwtService.sign(
-      { id: user.id },
+      { id: user.id, role: user.role },
       { expiresIn: '1h' },
     );
 

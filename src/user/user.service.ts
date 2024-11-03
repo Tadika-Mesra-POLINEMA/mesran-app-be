@@ -23,8 +23,8 @@ import { ValidationService } from 'src/common/validation.service';
 import { UserValidator } from 'src/user/user.validator';
 
 // Exceptions
-import { NotfoundException } from 'src/common/exception/notfound.exception';
-import { InvariantException } from 'src/common/exception/invariant.exception';
+import { NotfoundException } from 'src/common/exceptions/notfound.exception';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
 
 @Injectable()
 export class UserService {

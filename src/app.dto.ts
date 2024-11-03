@@ -13,7 +13,12 @@ export type Errors = {
 
 export interface AuthenticatedRequest extends Request {
   user?: {
+    role: Role;
     id: string;
-    // email: string;
   };
+}
+
+export class Role {
+  static ADMIN = 'ADMIN';
+  static USER = 'USER';
 }
