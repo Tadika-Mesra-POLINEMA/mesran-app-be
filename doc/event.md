@@ -21,8 +21,9 @@ Request Body:
       "date": "2024-10-24",
       "start": "2024-10-24T07:00:00.853Z",
       "end": "2024-10-24T012:00:00.853Z",
-      "dress": "dress_id",
-      "venue": "Rumah Upin",
+      "dress": "choose_your_dress_in_app",
+      "theme": "Halloween"
+      "location": "Rumah Upin",
       "cover": {
         "color": "yellow",
         "type": "line"

@@ -20,7 +20,7 @@ import { EventModule } from './event/event.module';
   providers: [
     {
       provide: APP_INTERCEPTOR,
-      useValue: CacheInterceptor,
+      useClass: CacheInterceptor,
     },
   ],
 })

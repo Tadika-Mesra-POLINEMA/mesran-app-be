@@ -57,17 +57,6 @@ model Authentication {
   @@map("authentications")
 }
 
-model EventDress {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(30)
-  created_at DateTime @default(now())
-
-  // Relationships
-  events Event[]
-
-  @@map("event_dresses")
-}
-
 model EventActivity {
   id             String    @id @default(uuid())
   event_id       String
@@ -88,22 +77,22 @@ model Event {
   id           String   @id @default(uuid())
   user_id      String
   name         String   @db.VarChar(100)
-  target_data  DateTime @db.Date
+  target_date  DateTime @db.Date
   event_start  DateTime
   event_end    DateTime
-  dress_id     String
-  venue        String   @db.VarChar(120)
-  member_count Int      @db.Int
+  location     String   @db.VarChar(120)
+  member_count Int      @default(0) @db.Int
   cover_color  String?  @db.VarChar(10)
   cover_type   String?  @db.VarChar(10)
   description  String   @db.Text
+  dress        String   @db.VarChar(30)
+  theme        String   @db.VarChar(50)
   is_done      Boolean  @default(false)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   // Relationships
   owner         User                @relation(fields: [user_id], references: [id])
-  dress         EventDress          @relation(fields: [dress_id], references: [id])
   activities    EventActivity[]
   participants  EventParticipant[]
   notifications EventNotification[]
