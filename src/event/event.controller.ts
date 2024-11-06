@@ -3,18 +3,18 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
   HttpCode,
   HttpStatus,
   Request,
+  Put,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 
 // Dtos
-import { AuthenticatedRequest, WebResponse } from 'src/app.dto';
+import { AuthenticatedRequest, Role, WebResponse } from 'src/app.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 
 // Guards
@@ -25,6 +25,11 @@ import { ValidationService } from 'src/common/validation.service';
 // Validators
 import { EventValidator } from './event.validator';
 import { ActivityValidator } from './activity/activity.validator';
+import { Event } from './entities/event.entity';
+import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
+import { Roles } from 'src/auth/decorators/role.decorator';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { VerifyEventOwnerGuard } from './guard/verify-owner.guard';
 
 @Controller('/api/events')
 export class EventController {
@@ -66,7 +71,109 @@ export class EventController {
     return {
       status: 'success',
       message: 'Event created successfully',
-      data: createdEvent,
+      data: {
+        event: createdEvent,
+      },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard)
+  @Get('all')
+  async getAllEvent(): Promise<WebResponse<Event[]>> {
+    const events = await this.eventService.findAll();
+
+    return {
+      status: 'success',
+      message: 'Events retrieved successfully',
+      data: events,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(Role.USER)
+  @UseGuards(AuthGuard)
+  @Get('me')
+  async getEventByUser(
+    @Request() request: AuthenticatedRequest,
+  ): Promise<WebResponse<Event[]>> {
+    const userId = request.user.id;
+
+    const events = await this.eventService.findByUserId(userId);
+
+    return {
+      status: 'success',
+      message: 'Events retrieved successfully',
+      data: events,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  async getEventById(@Param('id') id: string): Promise<WebResponse<Event>> {
+    const event = await this.eventService.findOne(id);
+
+    return {
+      status: 'success',
+      message: 'Event retrieved successfully',
+      data: event,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(VerifyEventOwnerGuard)
+  @UseGuards(AuthGuard)
+  @Put(':eventId')
+  async updateEvent(
+    @Body() updateEventDto: UpdateEventDto,
+    @Param('eventId') eventId: string,
+  ): Promise<WebResponse<null>> {
+    const updateEventRequest = this.validationService.validate(
+      EventValidator.UPDATE_EVENT,
+      updateEventDto,
+    );
+
+    await this.eventService.update(updateEventRequest, eventId);
+
+    return {
+      status: 'success',
+      message: 'Event updated successfully',
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(VerifyEventOwnerGuard)
+  @UseGuards(AuthGuard)
+  @Delete(':eventId/cancel')
+  async cancelEvent(
+    @Param('eventId') eventId: string,
+  ): Promise<WebResponse<null>> {
+    await this.eventService.cancel(eventId);
+
+    return {
+      status: 'success',
+      message: 'Event cancelled successfully',
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(VerifyEventOwnerGuard)
+  @UseGuards(RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(AuthGuard)
+  @Delete(':eventId')
+  async deleteEvent(
+    @Param('eventId') eventId: string,
+  ): Promise<WebResponse<null>> {
+    await this.eventService.delete(eventId);
+
+    return {
+      status: 'success',
+      message: 'Event deleted successfully',
     };
   }
 }

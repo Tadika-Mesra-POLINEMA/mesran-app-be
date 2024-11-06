@@ -6,6 +6,7 @@ import { MailModule } from './mail/mail.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { EventModule } from './event/event.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EventModule } from './event/event.module';
     MailModule,
     AuthModule,
     EventModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [
