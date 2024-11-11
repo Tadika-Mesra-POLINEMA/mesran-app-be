@@ -2,11 +2,9 @@ import {
   Body,
   Controller,
   Delete,
-  forwardRef,
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
   Param,
   Post,
   Put,
@@ -15,12 +13,9 @@ import {
 import { ActivityService } from './activity.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateActivityDto, CreatedActivity } from './dto/create-activity.dto';
-import { Role, WebResponse } from 'src/app.dto';
+import { WebResponse } from 'src/app.dto';
 import { ValidationService } from 'src/common/validation.service';
 import { ActivityValidator } from './activity.validator';
-import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
-import { Roles } from 'src/auth/decorators/role.decorator';
-import { EventService } from '../event.service';
 import { VerifyEventOwnerGuard } from '../guard/verify-owner.guard';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 

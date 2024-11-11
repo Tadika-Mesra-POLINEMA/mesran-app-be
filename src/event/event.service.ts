@@ -6,9 +6,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
-import { ValidationService } from 'src/common/validation.service';
-import { EventValidator } from './event.validator';
-import { Event } from './entities/event.entity';
+import { EventWithDetail } from './entities/event.entity';
 
 @Injectable()
 export class EventService {
@@ -59,18 +57,12 @@ export class EventService {
    *
    * @returns Finded events
    */
-  async findAll(): Promise<Event[]> {
+  async findAll(): Promise<EventWithDetail[]> {
     this.logger.info('Finding all events');
 
     const events = await this.prismaService.event.findMany({
       include: {
-        owner: {
-          select: {
-            email: true,
-            phone: true,
-            profile: true,
-          },
-        },
+        owner: true,
         participants: true,
         activities: true,
       },
@@ -87,7 +79,7 @@ export class EventService {
    * @param userId User id used to find their events
    * @returns Events found by user id
    */
-  async findByUserId(userId: string): Promise<Event[]> {
+  async findByUserId(userId: string): Promise<EventWithDetail[]> {
     this.logger.info('Finding events by user id', { userId });
 
     const events = await this.prismaService.event.findMany({
@@ -95,13 +87,7 @@ export class EventService {
         user_id: userId,
       },
       include: {
-        owner: {
-          select: {
-            email: true,
-            phone: true,
-            profile: true,
-          },
-        },
+        owner: true,
         participants: true,
         activities: true,
       },
@@ -118,7 +104,7 @@ export class EventService {
    * @param eventId Event id to find
    * @returns Finded event
    */
-  async findOne(eventId: string): Promise<Event> {
+  async findOne(eventId: string): Promise<EventWithDetail> {
     this.logger.info('Finding event', { eventId });
 
     const event = await this.prismaService.event.findUnique({
@@ -126,13 +112,7 @@ export class EventService {
         id: eventId,
       },
       include: {
-        owner: {
-          select: {
-            email: true,
-            phone: true,
-            profile: true,
-          },
-        },
+        owner: true,
         participants: true,
         activities: true,
       },
