@@ -31,12 +31,14 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { VerifyEventOwnerGuard } from './guard/verify-owner.guard';
 import { ManyEventDto, SingleEventDto } from './dto/get-event.dto';
 import { EventWithDetail } from './entities/event.entity';
+import { ParticipantService } from './participant/participant.service';
 
 @Controller('/api/events')
 export class EventController {
   constructor(
     private readonly eventService: EventService,
     private readonly activityService: ActivityService,
+    private readonly participantService: ParticipantService,
     private validationService: ValidationService,
   ) {}
 
@@ -68,6 +70,8 @@ export class EventController {
       createActivityRequest,
       createdEvent.id,
     );
+
+    await this.participantService.add(createdEvent.id, userId);
 
     return {
       status: 'success',

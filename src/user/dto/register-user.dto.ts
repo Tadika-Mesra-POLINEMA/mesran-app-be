@@ -7,4 +7,5 @@ export class RegisterUserRequest {
 
 export class RegisterUserResponse {
   email: string;
+  userId: string;
 }

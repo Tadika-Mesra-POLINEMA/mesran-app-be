@@ -4,6 +4,6 @@ export class Activity {
   description: string;
   activity_start: Date;
   activity_end: Date;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }

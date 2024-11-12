@@ -14,7 +14,11 @@ export class Event {
 }
 
 export class EventWithDetail extends Event {
-  owner: User;
+  owner: {
+    id: string;
+    email: string;
+    phone: string;
+  };
   participants: any[]; // assume it's any for now
   activities: Activity[];
 }

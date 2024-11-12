@@ -87,9 +87,36 @@ export class EventService {
         user_id: userId,
       },
       include: {
-        owner: true,
-        participants: true,
-        activities: true,
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+          },
+        },
+        participants: {
+          where: {
+            accepted: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        activities: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            activity_start: true,
+            activity_end: true,
+          },
+        },
       },
     });
 
@@ -112,9 +139,36 @@ export class EventService {
         id: eventId,
       },
       include: {
-        owner: true,
-        participants: true,
-        activities: true,
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+          },
+        },
+        participants: {
+          where: {
+            accepted: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        activities: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            activity_start: true,
+            activity_end: true,
+          },
+        },
       },
     });
 
