@@ -12,16 +12,16 @@ import {
 import { AuthService } from 'src/auth/auth.service';
 
 // Types
-import { WebResponse } from 'src/model/web.model';
+import { WebResponse } from 'src/app.dto';
+
+// Dtos
+import { EmailLogin, PhoneLogin, LoginResponse } from 'src/auth/dto/login.dto';
 import {
-  LoginRequest,
-  LoginResponse,
-  LogoutRequest,
-  RefreshRequest,
-  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/auth.model';
+} from 'src/auth/dto/verify-login.dto';
+import { RefreshRequest, RefreshResponse } from 'src/auth/dto/renew-token.dto';
+import { LogoutRequest } from 'src/auth/dto/logout.dto';
 
 @Controller('/api/authentications')
 export class AuthController {
@@ -30,7 +30,7 @@ export class AuthController {
   @Post('/')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() request: LoginRequest,
+    @Body() request: EmailLogin | PhoneLogin,
   ): Promise<WebResponse<LoginResponse>> {
     const response = await this.authService.login(request);
 

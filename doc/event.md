@@ -21,12 +21,9 @@ Request Body:
       "date": "2024-10-24",
       "start": "2024-10-24T07:00:00.853Z",
       "end": "2024-10-24T012:00:00.853Z",
-      "dress": "dress_id",
-      "venue": "Rumah Upin",
-      "cover": {
-        "color": "yellow",
-        "type": "line"
-      }
+      "dress": "choose_your_dress_in_app",
+      "theme": "Halloween",
+      "location": "Rumah Upin"
     }
   }
 }
@@ -47,12 +44,8 @@ Status Code: `201`
       "date": "2024-10-24",
       "start": "2024-10-24T07:00:00.853Z",
       "end": "2024-10-24T012:00:00.853Z",
-      "dress": "dress_id",
-      "venue": "Rumah Upin",
-      "cover": {
-        "color": "yellow",
-        "type": "line"
-      }
+      "dress": "Halloween",
+      "venue": "Rumah Upin"
     }
   }
 }
@@ -103,7 +96,8 @@ Status Code: `200`
         "targetDate": "2024-10-24",
         "eventStart": "2024-10-24T07:00:00.853Z",
         "eventEnd": "2024-10-24T012:00:00.853Z",
-        "dress": "uuid",
+        "theme": "Halloween",
+        "dress": "choosed_dress_in_app",
         "venue": "Rumah Upin",
         "coverColor": "yellow",
         "coverType": "line",
@@ -116,10 +110,6 @@ Status Code: `200`
           "phone": "081**********",
           "role": "USER",
           "profile": {}
-        },
-        "eventDress": {
-          "id": "uuid",
-          "name": "Dress Name"
         },
         "eventActivities": [
           {
@@ -175,10 +165,9 @@ Status Code: `200`
         "targetDate": "2024-10-24",
         "eventStart": "2024-10-24T07:00:00.853Z",
         "eventEnd": "2024-10-24T012:00:00.853Z",
-        "dress": "uuid",
+        "theme": "Halloween",
+        "dress": "choosed_dress_in_app",
         "venue": "Rumah Upin",
-        "coverColor": "yellow",
-        "coverType": "line",
         "memberCount": 0,
         "isDone": false,
         "createdAt": "created_date",
@@ -188,10 +177,6 @@ Status Code: `200`
           "phone": "081**********",
           "role": "USER",
           "profile": {}
-        },
-        "eventDress": {
-          "id": "uuid",
-          "name": "Dress Name"
         },
         "eventActivities": [],
         "eventParticipants": [
@@ -249,10 +234,9 @@ Status Code: `200`
         "targetDate": "2024-10-24",
         "eventStart": "2024-10-24T07:00:00.853Z",
         "eventEnd": "2024-10-24T012:00:00.853Z",
-        "dress": "uuid",
         "venue": "Rumah Upin",
-        "coverColor": "yellow",
-        "coverType": "line",
+        "theme": "Halloween",
+        "dress": "choosed_dress_in_app",
         "memberCount": 0,
         "isDone": false,
         "createdAt": "created_date",
@@ -262,10 +246,6 @@ Status Code: `200`
           "phone": "081**********",
           "role": "USER",
           "profile": {}
-        },
-        "eventDress": {
-          "id": "uuid",
-          "name": "Dress Name"
         },
         "eventActivities": [],
         "eventParticipants": [
@@ -284,7 +264,7 @@ Status Code: `200`
 
 ## Update event by owner
 
-Endpoint: `PATCH /api/events/{eventId}`
+Endpoint: `PUT /api/events/{eventId}`
 
 Headers:
 
@@ -300,7 +280,8 @@ Request Body:
   "description": "This is the new birthday description", // optional
   "eventStart": "new_datetime_event_start", // optional
   "eventEnd": "new_datetime_event_end", // optional
-  "venue": "Rumah Opan" // optional
+  "venue": "Rumah Opan", // optional
+  "dress": "Halloween"
 }
 ```
 
@@ -584,46 +565,5 @@ Response `not-found-client-error`:
 {
   "status": "fail",
   "message": "Cannot delete an activity, Activity not found"
-}
-```
-
-## Update event dress
-
-Endpoint: `PUT /api/event/{eventId}/dress?dresscode=dresscode_id`
-
-Headers:
-
-| Param         | Value          |
-| ------------- | -------------- |
-| Authorization | Bearer `token` |
-
-Query:
-
-| Param     | Value        |
-| --------- | ------------ |
-| dresscode | dresscode_id |
-
-Response `success`:
-
-```json
-{
-  "status": "success",
-  "message": "Successfully set the used dresscode"
-}
-```
-
-Response `not-found-client-error`:
-
-```json
-{
-  "status": "fail",
-  "message": "Cannot set the dresscode, Event not found"
-}
-```
-
-```json
-{
-  "status": "fail",
-  "message": "Cannot set the dresscode, Dresscode not found"
 }
 ```

@@ -7,22 +7,24 @@ import * as bcrypt from 'bcrypt';
 // Services
 import { PrismaService } from 'src/common/prisma.service';
 
-// Models
+// Entities
+import { UserProfile } from 'src/user/entities/user-profile.entity';
+
+// Dtos
 import {
   RegisterUserRequest,
   RegisterUserResponse,
-  UpdateProfileUserRequest,
-  UpdateUserRequest,
-  UserProfile,
-} from 'src/model/user.model';
+} from 'src/user/dto/register-user.dto';
+import { UpdateUserRequest } from 'src/user/dto/update-user.dto';
+import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Validators
 import { ValidationService } from 'src/common/validation.service';
 import { UserValidator } from 'src/user/user.validator';
 
 // Exceptions
-import { NotfoundException } from 'src/common/exception/notfound.exception';
-import { InvariantException } from 'src/common/exception/invariant.exception';
+import { NotfoundException } from 'src/common/exceptions/notfound.exception';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
 
 @Injectable()
 export class UserService {
@@ -72,6 +74,7 @@ export class UserService {
 
     return {
       email: registeredUser.email,
+      userId: registeredUser.id,
     };
   }
 

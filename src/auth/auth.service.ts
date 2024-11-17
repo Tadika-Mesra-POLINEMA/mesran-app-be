@@ -11,25 +11,25 @@ import { MailService } from 'src/mail/mail.service';
 import { OtpService } from 'src/common/otp.service';
 import { JwtService } from '@nestjs/jwt';
 
-// Types
+// Dtos
+import { EmailLogin, PhoneLogin, LoginResponse } from 'src/auth/dto/login.dto';
 import {
-  LoginRequest,
-  LoginResponse,
-  LogoutRequest,
-  OTP,
-  RefreshRequest,
-  RefreshResponse,
   VerifyLoginRequest,
   VerifyLoginResponse,
-} from 'src/model/auth.model';
+} from 'src/auth/dto/verify-login.dto';
+import { RefreshRequest, RefreshResponse } from 'src/auth/dto/renew-token.dto';
+import { LogoutRequest } from 'src/auth/dto/logout.dto';
+
+// Models
+import { OTP } from 'src/auth/entities/otp.entity';
 
 // Validators
 import { AuthValidator } from 'src/auth/auth.validator';
 
 // Exceptions
-import { InvariantException } from 'src/common/exception/invariant.exception';
-import { AuthenticationException } from 'src/common/exception/authentication.exception';
-import { NotfoundException } from 'src/common/exception/notfound.exception';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
+import { AuthenticationException } from 'src/common/exceptions/authentication.exception';
+import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 
 // Models
 import { User } from '@prisma/client';
@@ -56,7 +56,7 @@ export class AuthService {
    * @param request Payload to login
    * @returns Login response included verification key and OTP
    */
-  async login(request: LoginRequest): Promise<LoginResponse> {
+  async login(request: EmailLogin | PhoneLogin): Promise<LoginResponse> {
     this.logger.info(`Logged in user ${JSON.stringify(request)}`);
 
     const loginRequest = this.validationService.validate(
@@ -156,7 +156,7 @@ export class AuthService {
       });
 
     const accessToken: string = this.jwtService.sign(
-      { id: user.id },
+      { id: user.id, role: user.role },
       { expiresIn: '1h' },
     );
     const refreshToken: string = this.jwtService.sign(
@@ -212,7 +212,7 @@ export class AuthService {
     }
 
     const accessToken: string = this.jwtService.sign(
-      { id: user.id },
+      { id: user.id, role: user.role },
       { expiresIn: '1h' },
     );
 

@@ -57,17 +57,6 @@ model Authentication {
   @@map("authentications")
 }
 
-model EventDress {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(30)
-  created_at DateTime @default(now())
-
-  // Relationships
-  events Event[]
-
-  @@map("event_dresses")
-}
-
 model EventActivity {
   id             String    @id @default(uuid())
   event_id       String
@@ -79,7 +68,7 @@ model EventActivity {
   updated_at     DateTime? @updatedAt
 
   // Relationships
-  event Event @relation(fields: [event_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
 
   @@map("event_activities")
 }
@@ -88,22 +77,21 @@ model Event {
   id           String   @id @default(uuid())
   user_id      String
   name         String   @db.VarChar(100)
-  target_data  DateTime @db.Date
+  target_date  DateTime @db.Date
   event_start  DateTime
   event_end    DateTime
-  dress_id     String
-  venue        String   @db.VarChar(120)
-  member_count Int      @db.Int
-  cover_color  String?  @db.VarChar(10)
-  cover_type   String?  @db.VarChar(10)
+  location     String   @db.VarChar(120)
+  member_count Int      @default(0) @db.Int
   description  String   @db.Text
+  dress        String   @db.VarChar(30)
+  theme        String   @db.VarChar(50)
   is_done      Boolean  @default(false)
+  is_canceled  Boolean  @default(false)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   // Relationships
-  owner         User                @relation(fields: [user_id], references: [id])
-  dress         EventDress          @relation(fields: [dress_id], references: [id])
+  owner         User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   activities    EventActivity[]
   participants  EventParticipant[]
   notifications EventNotification[]
@@ -115,11 +103,13 @@ model EventParticipant {
   id             String   @id @default(uuid())
   user_id        String
   event_id       String
-  participate_at DateTime
+  accepted       Boolean  @default(false)
+  declined       Boolean  @default(false)
+  participate_at DateTime @default(now())
 
   // Relationships
   user  User  @relation(fields: [user_id], references: [id])
-  event Event @relation(fields: [event_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
 
   @@map("event_participants")
 }
@@ -133,7 +123,7 @@ model EventNotification {
   created_at DateTime @default(now())
 
   user  User  @relation(fields: [user_id], references: [id])
-  event Event @relation(fields: [event_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
 
   @@map("event_notifications")
 }

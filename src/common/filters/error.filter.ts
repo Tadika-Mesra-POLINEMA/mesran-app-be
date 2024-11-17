@@ -4,7 +4,7 @@ import {
   ExceptionFilter,
   HttpException,
 } from '@nestjs/common';
-import { Errors } from 'src/model/web.model';
+import { Errors } from 'src/app.dto';
 import { ZodError } from 'zod';
 
 @Catch(ZodError, HttpException)
