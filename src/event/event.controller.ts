@@ -10,6 +10,8 @@ import {
   HttpStatus,
   Request,
   Put,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 
@@ -32,6 +34,8 @@ import { VerifyEventOwnerGuard } from './guard/verify-owner.guard';
 import { ManyEventDto, SingleEventDto } from './dto/get-event.dto';
 import { EventWithDetail } from './entities/event.entity';
 import { ParticipantService } from './participant/participant.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
 
 @Controller('/api/events')
 export class EventController {
@@ -121,7 +125,6 @@ export class EventController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
   @Get(':id')
   async getEventById(
     @Param('id') id: string,
@@ -134,6 +137,21 @@ export class EventController {
       data: {
         event,
       },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('face'))
+  @Post('verify-face')
+  async verifyEventGuestWithFace(@UploadedFile() face: Express.Multer.File) {
+    if (!face) throw new InvariantException('No face image uploaded!');
+
+    const response = await this.eventService.verifyFaceOwner(face);
+
+    return {
+      status: 'success',
+      message: 'Face owner verified successfully',
+      data: response,
     };
   }
 

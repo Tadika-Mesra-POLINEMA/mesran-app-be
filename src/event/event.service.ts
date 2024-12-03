@@ -1,18 +1,22 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import * as FormData from 'form-data';
 import { CreatedEvent, CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
 import { EventWithDetail } from './entities/event.entity';
+import { HttpService } from '@nestjs/axios';
+import { FaceRecognitionResponseDto } from './dto/face-recognition.dto';
 
 @Injectable()
 export class EventService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
+    private httpService: HttpService,
   ) {}
 
   /**
@@ -189,6 +193,57 @@ export class EventService {
     if (!event) throw new NotFoundException('Event not found');
 
     return event.user_id === userId;
+  }
+
+  /**
+   * Verify face owner
+   *
+   * @param face Face image to verify
+   */
+  async verifyFaceOwner(
+    face: Express.Multer.File,
+  ): Promise<FaceRecognitionResponseDto> {
+    this.logger.info('Verifying face owner');
+
+    const formData = new FormData();
+    formData.append('face', face.buffer, {
+      filename: face.originalname,
+      contentType: face.mimetype,
+    });
+
+    const response = await this.httpService.axiosRef.post(
+      '/predict',
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+        },
+      },
+    );
+
+    const { user_id, confidence } = response.data;
+
+    if (response.status !== 200) {
+      this.logger.info('Face owner not verified');
+
+      return {
+        is_match: false,
+        user: null,
+        confidence,
+      };
+    }
+
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        id: user_id,
+      },
+    });
+
+    return {
+      is_match: true,
+      user,
+      confidence,
+    };
   }
 
   /**

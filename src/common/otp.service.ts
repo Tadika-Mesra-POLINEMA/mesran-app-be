@@ -3,27 +3,15 @@ import * as otpGenerator from 'otp-generator';
 
 @Injectable()
 export class OtpService {
-  generate(
-    length: number,
-    options: OtpConfig = {
-      isDigits: true,
-      isAlphabets: false,
-      isUpperCase: false,
-      isSpecialChars: false,
-    },
-  ): string {
+  generate(length: number): string {
     return otpGenerator.generate(length, {
-      digits: options.isDigits,
-      alphabets: options.isAlphabets,
-      upperCase: options.isUpperCase,
-      specialChars: options.isSpecialChars,
+      // digits: true,
+      // alphabets: false,
+      // upperCase: false,
+      // specialChars: false,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
     });
   }
-}
-
-interface OtpConfig {
-  isDigits: boolean;
-  isAlphabets: boolean;
-  isUpperCase: boolean;
-  isSpecialChars: boolean;
 }

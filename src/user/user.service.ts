@@ -3,6 +3,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { User } from '@prisma/client';
 import { Logger } from 'winston';
 import * as bcrypt from 'bcrypt';
+import * as FormData from 'form-data';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
@@ -25,10 +26,14 @@ import { UserValidator } from 'src/user/user.validator';
 // Exceptions
 import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 import { InvariantException } from 'src/common/exceptions/invariant.exception';
+import { HttpService } from '@nestjs/axios';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
+    private httpService: HttpService,
+    private jwtService: JwtService,
     private validationService: ValidationService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
@@ -72,10 +77,86 @@ export class UserService {
       data: registerRequest,
     });
 
+    const accessToken: string = this.jwtService.sign(
+      { id: registeredUser.id, role: registeredUser.role },
+      { expiresIn: '1h' },
+    );
+    const refreshToken: string = this.jwtService.sign(
+      { id: registeredUser.id },
+      { expiresIn: '7d' },
+    );
+
+    await this.prismaService.authentication.create({
+      data: {
+        token: refreshToken,
+      },
+    });
+
     return {
       email: registeredUser.email,
-      userId: registeredUser.id,
+      accessToken,
+      refreshToken,
     };
+  }
+
+  /**
+   * Method to regist user photos
+   *
+   * @param userId User id
+   * @param photos Photos to be registered
+   */
+  async registerPhotos(
+    userId: string,
+    photos: Express.Multer.File[],
+  ): Promise<void> {
+    this.logger.info(`Register photos for user ${userId}`);
+
+    const isUserExist = await this.prismaService.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!isUserExist) throw new NotfoundException('User not found');
+
+    const formData = new FormData();
+
+    // Append user id used to register photos
+    formData.append('user_id', userId);
+
+    // Append photos to be registered
+    photos.forEach((photo) => {
+      formData.append('faces', photo.buffer, {
+        filename: photo.originalname,
+        contentType: photo.mimetype,
+      });
+    });
+
+    try {
+      const response = await this.httpService.axiosRef.post(
+        '/faces/register',
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+          },
+        },
+      );
+
+      this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          is_face_registered: true,
+        },
+      });
+
+      this.logger.info('Photos successfully registered:', response.data);
+    } catch (error) {
+      this.logger.error('Failed to register photos', error.message);
+      throw new InvariantException('Failed to register photos');
+    }
   }
 
   /**
@@ -186,6 +267,21 @@ export class UserService {
         user_id: userId,
       },
       data: updateRequest,
+    });
+  }
+
+  async getUserById(id: string): Promise<User> {
+    return this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        profile: {
+          where: {
+            user_id: id,
+          },
+        },
+      },
     });
   }
 }

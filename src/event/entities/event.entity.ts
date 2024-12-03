@@ -1,4 +1,3 @@
-import { User } from 'src/user/entities/user.entity';
 import { Activity } from '../activity/entities/activity.entity';
 
 export class Event {

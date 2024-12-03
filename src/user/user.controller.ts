@@ -4,11 +4,14 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
   Post,
   Put,
   Request,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 
@@ -29,13 +32,15 @@ import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Guards
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { InvariantException } from 'src/common/exceptions/invariant.exception';
 
 @Controller('/api/users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Post()
   async register(
     @Body() request: RegisterUserRequest,
   ): Promise<WebResponse<RegisterUserResponse>> {
@@ -48,9 +53,41 @@ export class UserController {
     };
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async getById(@Param('id') id: string): Promise<WebResponse<User>> {
+    const user = await this.userService.getUserById(id);
+
+    return {
+      status: 'success',
+      message: 'Successfully obtained user profile',
+      data: user,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'faces', maxCount: 10 }]))
+  @UseGuards(AuthGuard)
+  @Post('faces')
+  async registerFaces(
+    @Request() request: AuthenticatedRequest,
+    @UploadedFiles() files: { faces?: Express.Multer.File[] },
+  ): Promise<WebResponse<null>> {
+    if (!files || !files.faces || files.faces.length === 0) {
+      throw new InvariantException('Tidak ada file gambar yang diunggah!');
+    }
+
+    await this.userService.registerPhotos(request.user.id, files.faces);
+
+    return {
+      status: 'success',
+      message: 'Files sent to external service successfully!',
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Post('profile')
-  @HttpCode(HttpStatus.OK)
   async createProfile(
     @Request() request: AuthenticatedRequest,
     @Body() body: UserProfile,
