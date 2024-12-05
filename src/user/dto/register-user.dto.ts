@@ -7,5 +7,6 @@ export class RegisterUserRequest {
 
 export class RegisterUserResponse {
   email: string;
-  userId: string;
+  accessToken: string;
+  refreshToken: string;
 }

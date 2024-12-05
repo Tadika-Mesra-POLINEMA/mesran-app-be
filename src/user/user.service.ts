@@ -3,6 +3,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { User } from '@prisma/client';
 import { Logger } from 'winston';
 import * as bcrypt from 'bcrypt';
+import * as FormData from 'form-data';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
@@ -25,6 +26,8 @@ import { UserValidator } from 'src/user/user.validator';
 // Exceptions
 import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 import { InvariantException } from 'src/common/exceptions/invariant.exception';
+import { HttpService } from '@nestjs/axios';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -32,6 +35,8 @@ export class UserService {
     private validationService: ValidationService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
+    private httpService: HttpService,
+    private jwtService: JwtService,
   ) {}
 
   /**
@@ -72,10 +77,97 @@ export class UserService {
       data: registerRequest,
     });
 
+    const accessToken: string = this.jwtService.sign(
+      {
+        id: registeredUser.id,
+        role: registeredUser.role,
+      },
+      { expiresIn: '1h' },
+    );
+
+    const refreshToken: string = this.jwtService.sign(
+      {
+        id: registeredUser.id,
+      },
+      {
+        expiresIn: '7d',
+      },
+    );
+
     return {
       email: registeredUser.email,
-      userId: registeredUser.id,
+      accessToken,
+      refreshToken,
     };
+  }
+
+  /**
+   * Method to register user faces
+   *
+   * @param userId Id user to register the face
+   * @param faces List of image used for registering user faces
+   * @return Promise<void>
+   */
+  async registerFaces(
+    userId: string,
+    faces: Express.Multer.File[],
+  ): Promise<void> {
+    this.logger.info(`Register new user ${JSON.stringify(userId)}`);
+
+    const isUserExist = await this.prismaService.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!isUserExist) {
+      throw new NotfoundException('User not found');
+    }
+
+    const formData = new FormData();
+
+    formData.append('user_id', userId);
+
+    faces.forEach((face) => {
+      formData.append('faces', face.buffer, {
+        filename: face.originalname,
+        contentType: face.mimetype,
+      });
+    });
+
+    try {
+      const response = await this.httpService.axiosRef.post(
+        '/faces/register',
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+          },
+        },
+      );
+
+      if (response.status === 201) {
+        this.logger.info(
+          `Update register face status into true user ${userId}`,
+        );
+
+        await this.prismaService.user.update({
+          data: {
+            is_face_registered: true,
+          },
+          where: {
+            id: userId,
+          },
+        });
+
+        this.logger.info('Photo successfully updated');
+      } else {
+        this.logger.info('Failed to register user face');
+      }
+    } catch (error) {
+      this.logger.error('Failed to register user face', error.message);
+      throw new InvariantException(error.message);
+    }
   }
 
   /**
@@ -101,7 +193,7 @@ export class UserService {
       throw new InvariantException('Profile already exists');
     }
 
-    return await this.prismaService.profile.create({
+    return this.prismaService.profile.create({
       data: {
         username: profileRequest.username,
         firstname: profileRequest.firstname,

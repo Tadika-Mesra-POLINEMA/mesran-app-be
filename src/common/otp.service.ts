@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+  import { Injectable } from '@nestjs/common';
 import * as otpGenerator from 'otp-generator';
 
 @Injectable()
@@ -13,10 +13,13 @@ export class OtpService {
     },
   ): string {
     return otpGenerator.generate(length, {
-      digits: options.isDigits,
-      alphabets: options.isAlphabets,
-      upperCase: options.isUpperCase,
-      specialChars: options.isSpecialChars,
+      // digits: options.isDigits,
+      // alphabets: options.isAlphabets,
+      // upperCase: options.isUpperCase,
+      // specialChars: options.isSpecialChars,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
     });
   }
 }

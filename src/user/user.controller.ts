@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Request,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 
@@ -29,6 +31,8 @@ import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Guards
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { InvariantException } from '../common/exceptions/invariant.exception';
 
 @Controller('/api/users')
 export class UserController {
@@ -45,6 +49,28 @@ export class UserController {
       status: 'success',
       message: 'Successfully registered',
       data: response,
+    };
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'faces', maxCount: 10 }]))
+  @UseGuards(AuthGuard)
+  @Post('faces')
+  async registerFace(
+    @Request() request: AuthenticatedRequest,
+    @UploadedFiles() files: { faces?: Express.Multer.File[] },
+  ): Promise<WebResponse<null>> {
+    if (!files || !files.faces || files.faces.length == 0) {
+      throw new InvariantException('Tidak ada file gambar yang diunggah');
+    }
+
+    const userId: string = request.user.id;
+
+    await this.userService.registerFaces(userId, files.faces);
+
+    return {
+      status: 'success',
+      message: 'Successfully registered user faces',
     };
   }
 
