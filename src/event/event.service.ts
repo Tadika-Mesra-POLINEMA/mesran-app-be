@@ -7,6 +7,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 // Services
 import { PrismaService } from 'src/common/prisma.service';
 import { EventWithDetail } from './entities/event.entity';
+import { InviteEventResponseDto } from './dto/invite-event.dto';
 
 @Injectable()
 export class EventService {
@@ -35,7 +36,6 @@ export class EventService {
         target_date: createEventDto.target_date,
         location: createEventDto.location,
         event_start: createEventDto.event_start,
-        event_end: createEventDto.event_end,
         dress: createEventDto.dress,
         theme: createEventDto.theme,
 
@@ -70,7 +70,12 @@ export class EventService {
 
     this.logger.info('Events found', { events });
 
-    return events;
+    return events.map((event) => {
+      return {
+        ...event,
+        is_owner: false,
+      };
+    });
   }
 
   /**
@@ -122,7 +127,12 @@ export class EventService {
 
     this.logger.info('Events found', { events });
 
-    return events;
+    return events.map((event) => {
+      return {
+        ...event,
+        is_owner: event.user_id === userId,
+      };
+    });
   }
 
   /**
@@ -131,7 +141,7 @@ export class EventService {
    * @param eventId Event id to find
    * @returns Finded event
    */
-  async findOne(eventId: string): Promise<EventWithDetail> {
+  async findOne(userId: string, eventId: string): Promise<EventWithDetail> {
     this.logger.info('Finding event', { eventId });
 
     const event = await this.prismaService.event.findUnique({
@@ -176,7 +186,33 @@ export class EventService {
 
     this.logger.info('Event found', { event });
 
-    return event;
+    return {
+      ...event,
+      is_owner: event.user_id === userId,
+    };
+  }
+
+  /**
+   * Get event to invite
+   *
+   * @param eventId Event id to invite
+   * @returns Invite event response
+   */
+  async eventInvite(eventId: string): Promise<InviteEventResponseDto> {
+    const event = await this.prismaService.event.findUnique({
+      where: {
+        id: eventId,
+      },
+    });
+
+    if (!event) throw new NotFoundException('Event not found');
+
+    return {
+      name: event.name,
+      target_date: event.target_date,
+      event_start: event.event_start,
+      location: event.location,
+    };
   }
 
   async verifyEventOwner(eventId: string, userId: string): Promise<boolean> {
@@ -210,7 +246,6 @@ export class EventService {
         target_date: request.target_date,
         location: request.location,
         event_start: request.event_start,
-        event_end: request.event_end,
         dress: request.dress,
         theme: request.theme,
       },

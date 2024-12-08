@@ -32,6 +32,7 @@ import { VerifyEventOwnerGuard } from './guard/verify-owner.guard';
 import { ManyEventDto, SingleEventDto } from './dto/get-event.dto';
 import { EventWithDetail } from './entities/event.entity';
 import { ParticipantService } from './participant/participant.service';
+import { InviteEventResponseDto } from './dto/invite-event.dto';
 
 @Controller('/api/events')
 export class EventController {
@@ -61,15 +62,17 @@ export class EventController {
       userId,
     );
 
-    const createActivityRequest = this.validationService.validate(
-      ActivityValidator.CREATE_ACTIVITIES,
-      createEventDto.activities,
-    );
+    if (createEventDto.activities.length > 0) {
+      const createActivityRequest = this.validationService.validate(
+        ActivityValidator.CREATE_ACTIVITIES,
+        createEventDto.activities,
+      );
 
-    await this.activityService.createMany(
-      createActivityRequest,
-      createdEvent.id,
-    );
+      await this.activityService.createMany(
+        createActivityRequest,
+        createdEvent.id,
+      );
+    }
 
     await this.participantService.add(createdEvent.id, userId);
 
@@ -79,6 +82,20 @@ export class EventController {
       data: {
         event: createdEvent,
       },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get(':eventId/invitation')
+  async invite(
+    @Param('eventId') eventId: string,
+  ): Promise<WebResponse<InviteEventResponseDto>> {
+    const invitation = await this.eventService.eventInvite(eventId);
+
+    return {
+      status: 'success',
+      message: 'Invitation sent successfully',
+      data: invitation,
     };
   }
 
@@ -124,9 +141,10 @@ export class EventController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async getEventById(
+    @Request() request: AuthenticatedRequest,
     @Param('id') id: string,
   ): Promise<WebResponse<SingleEventDto<EventWithDetail>>> {
-    const event = await this.eventService.findOne(id);
+    const event = await this.eventService.findOne(request.user.id, id);
 
     return {
       status: 'success',

@@ -3,14 +3,23 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
+  Inject,
 } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Errors } from 'src/app.dto';
+import { Logger } from 'winston';
 import { ZodError } from 'zod';
 
 @Catch(ZodError, HttpException)
 export class ErrorFilter implements ExceptionFilter {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
+
   catch(exception: any, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse();
+
+    this.logger.error('Bad Request: ', exception);
 
     if (exception instanceof HttpException) {
       response.status(exception.getStatus()).json({

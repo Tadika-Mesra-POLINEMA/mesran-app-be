@@ -29,12 +29,6 @@ export class EventValidator {
         .refine((val) => new Date(val) > new Date(), {
           message: 'Start date cannot be earlier than now.',
         }),
-      event_end: z
-        .string()
-        .datetime('yyyy-MM-dd HH:mm:ss')
-        .refine((val) => new Date(val) > new Date(), {
-          message: 'End date cannot be earlier than now.',
-        }),
       dress: z.string().min(1, {
         message: 'Event dress code is required',
       }),
@@ -45,10 +39,6 @@ export class EventValidator {
     .refine((data) => data.event_start > data.target_date, {
       message: 'Target date cannot be earlier than start date.',
       path: ['target_date'],
-    })
-    .refine((data) => data.event_start < data.event_end, {
-      message: 'End date cannot be earlier than start date.',
-      path: ['event_end'],
     });
 
   static readonly UPDATE_EVENT: ZodType = EventValidator.CREATE_EVENT;

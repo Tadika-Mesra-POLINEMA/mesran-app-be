@@ -6,10 +6,9 @@ export class CreateEventDto {
   target_date: Date;
   location: string;
   event_start: Date;
-  event_end: Date;
   dress: string;
   theme: string;
-  activities: CreateActivityDto[];
+  activities?: CreateActivityDto[];
 }
 
 export class CreatedEvent {
@@ -19,7 +18,6 @@ export class CreatedEvent {
   target_date: Date;
   location: string;
   event_start: Date;
-  event_end: Date;
   dress: string;
   theme: string;
 }

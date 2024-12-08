@@ -22,6 +22,7 @@ export class ParticipantService {
   async add(
     eventId: string,
     userId: string,
+    _isAccepted: boolean = false,
   ): Promise<CreateParticipantResponse> {
     this.logger.info('Adding a participant');
 
@@ -46,6 +47,7 @@ export class ParticipantService {
     const createdParticipant = await this.prismaService.eventParticipant.create(
       {
         data: {
+          accepted: _isAccepted,
           event: {
             connect: {
               id: eventId,
@@ -59,6 +61,17 @@ export class ParticipantService {
         },
       },
     );
+
+    await this.prismaService.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        member_count: {
+          increment: 1,
+        },
+      },
+    });
 
     this.logger.info('Participant added');
 
