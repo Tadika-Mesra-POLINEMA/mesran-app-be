@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evenify_app_api
+    ports:
+      - '3000:3000'
+    depends_on:
+      - redis
+    networks:
+      - evenify_network
+
+  redis:
+    image: redis:alpine
+    container_name: evenify_redis
+    ports:
+      - '6379:6379'
+    networks:
+      - evenify_network
+
+networks:
+  evenify_network:
+    driver: bridge
