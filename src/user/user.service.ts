@@ -146,6 +146,8 @@ export class UserService {
         },
       );
 
+      this.logger.info(`Response status ${response.status}`);
+
       if (response.status === 201) {
         this.logger.info(
           `Update register face status into true user ${userId}`,
@@ -163,6 +165,7 @@ export class UserService {
         this.logger.info('Photo successfully updated');
       } else {
         this.logger.info('Failed to register user face');
+        throw new InvariantException('Failed to register user face');
       }
     } catch (error) {
       this.logger.error('Failed to register user face', error.message);

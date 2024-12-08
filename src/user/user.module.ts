@@ -15,6 +15,7 @@ import { HttpModule } from '@nestjs/axios';
     }),
     HttpModule.register({
       baseURL: process.env.MACHINE_LEARNING_BASE_URL,
+      maxRedirects: 5,
     }),
   ],
 })

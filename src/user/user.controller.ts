@@ -53,7 +53,7 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'faces', maxCount: 10 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'faces', maxCount: 20 }]))
   @UseGuards(AuthGuard)
   @Post('faces')
   async registerFace(
