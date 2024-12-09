@@ -77,6 +77,18 @@ export class UserService {
       data: registerRequest,
     });
 
+    await this.prismaService.profile.create({
+      data: {
+        username: request.username,
+        firstname: request.username.slice(0, 1).toUpperCase(),
+        user: {
+          connect: {
+            id: registeredUser.id,
+          },
+        },
+      },
+    });
+
     const accessToken: string = this.jwtService.sign(
       {
         id: registeredUser.id,
@@ -93,6 +105,12 @@ export class UserService {
         expiresIn: '7d',
       },
     );
+
+    await this.prismaService.authentication.create({
+      data: {
+        token: refreshToken,
+      },
+    });
 
     return {
       email: registeredUser.email,
@@ -170,6 +188,65 @@ export class UserService {
     } catch (error) {
       this.logger.error('Failed to register user face', error.message);
       throw new InvariantException(error.message);
+    }
+  }
+
+  /**
+   * Method to predict face
+   *
+   * @param userId User id
+   * @param face Image used for predicting user face
+   * @returns Promise<void>
+   */
+  async predictFace(face: Express.Multer.File): Promise<User> {
+    this.logger.info(`Predict face for user`);
+
+    const formData = new FormData();
+
+    formData.append('face', face.buffer, {
+      filename: face.originalname,
+      contentType: face.mimetype,
+    });
+
+    try {
+      const response = await this.httpService.axiosRef.post(
+        '/predict',
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+          },
+        },
+      );
+
+      this.logger.info(`Response status ${response.status}`);
+
+      if (response.status === 200) {
+        this.logger.info('Successfully predicted face');
+
+        const confidenceVal = response.data.confidence;
+
+        if (confidenceVal < 0.5) {
+          throw new InvariantException('Confidence value is less than 0.5');
+        }
+
+        const user = await this.prismaService.user.findFirst({
+          where: {
+            id: response.data.user_id,
+          },
+          include: {
+            profile: true,
+          },
+        });
+
+        return user;
+      } else {
+        this.logger.info('Failed to predict face');
+        throw new InvariantException('Failed to predict face');
+      }
+    } catch (error) {
+      this.logger.error('Failed to predict face', error.message);
+      throw new InvariantException(error);
     }
   }
 

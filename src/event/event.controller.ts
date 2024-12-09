@@ -128,6 +128,8 @@ export class EventController {
 
     const events = await this.eventService.findByUserId(userId);
 
+    console.log(events);
+
     return {
       status: 'success',
       message: 'Events retrieved successfully',

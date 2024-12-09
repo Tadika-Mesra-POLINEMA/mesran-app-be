@@ -101,12 +101,16 @@ export class AuthService {
 
     if (loginRequest.email) {
       // TODO: SEND EMAIL
-      // await this.mailService.sendMail({
-      //   to: user.email,
-      //   subject: 'OTP Verification',
-      //   template: 'otp',
-      //   context: { otp },
-      // });
+
+      this.logger.info(`Sending email to ${user.email}`);
+      this.logger.info(`Otp: ${otp}`);
+
+      await this.mailService.sendMail({
+        to: user.email,
+        subject: 'OTP Verification',
+        template: 'otp',
+        context: { otp },
+      });
     } else if (loginRequest.phone) {
       // TODO: SEND SMS VERIFICATION
     }

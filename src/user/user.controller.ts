@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Request,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -31,7 +32,10 @@ import { UpdateProfileUserRequest } from 'src/user/dto/update-user-profile.dto';
 
 // Guards
 import { AuthGuard } from 'src/auth/auth.guard';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { InvariantException } from '../common/exceptions/invariant.exception';
 
 @Controller('/api/users')
@@ -74,9 +78,28 @@ export class UserController {
     };
   }
 
-  @UseGuards(AuthGuard)
-  @Post('profile')
   @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('face'))
+  @Post('face/predict')
+  async predictFace(
+    @UploadedFile() face: Express.Multer.File,
+  ): Promise<WebResponse<User>> {
+    if (!face) {
+      throw new InvariantException('Tidak ada file gambar yang diunggah');
+    }
+
+    const response = await this.userService.predictFace(face);
+
+    return {
+      status: 'success',
+      message: 'Successfully predicted face',
+      data: response,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('profile')
+  @UseGuards(AuthGuard)
   async createProfile(
     @Request() request: AuthenticatedRequest,
     @Body() body: UserProfile,
@@ -109,9 +132,9 @@ export class UserController {
     };
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Put()
-  @HttpCode(HttpStatus.OK)
   async update(
     @Request() request: AuthenticatedRequest,
     @Body() body: UpdateUserRequest,

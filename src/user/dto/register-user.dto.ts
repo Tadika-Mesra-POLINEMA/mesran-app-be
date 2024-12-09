@@ -1,4 +1,5 @@
 export class RegisterUserRequest {
+  username: string;
   email: string;
   phone: string;
   password: string;
