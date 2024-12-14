@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -15,6 +16,7 @@ import { AuthenticatedRequest, Role, WebResponse } from 'src/app.dto';
 import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 import { CreateParticipantResponse } from './dto/create-participant.dto';
 import { VerifyEventOwnerGuard } from '../guard/verify-owner.guard';
+import { Participant } from './entity/participant.entity';
 
 @Controller('/api/events/:eventId/participants')
 export class ParticipantController {
@@ -38,6 +40,21 @@ export class ParticipantController {
       status: 'success',
       message: 'Participant added',
       data: response,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get()
+  async participants(
+    @Param('eventId') eventId: string,
+  ): Promise<WebResponse<Participant[]>> {
+    const participants = await this.participantService.getParticipants(eventId);
+
+    return {
+      status: 'success',
+      message: "Successfully get event's participants",
+      data: participants,
     };
   }
 

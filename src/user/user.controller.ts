@@ -115,14 +115,13 @@ export class UserController {
     };
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Get('me')
-  @HttpCode(HttpStatus.OK)
   async me(
     @Request() request: AuthenticatedRequest,
-  ): Promise<WebResponse<Omit<User, 'password'>>> {
+  ): Promise<WebResponse<User>> {
     const userId = request.user.id;
-
     const user = await this.userService.getUser(userId);
 
     return {

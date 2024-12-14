@@ -3,5 +3,5 @@ export class ManyEventDto<T> {
 }
 
 export class SingleEventDto<T> {
-    event: T;
+  event: T;
 }

@@ -22,12 +22,10 @@ export class AuthGuard implements CanActivate {
       request.user = await this.jwtService.verifyAsync(token, {
         secret: process.env.TOKEN_SECRET,
       });
-    } catch (error) {
-      console.log(process.env.TOKEN_SECRET);
-      console.log(error);
+      return true;
+    } catch {
       throw new UnauthorizedException();
     }
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

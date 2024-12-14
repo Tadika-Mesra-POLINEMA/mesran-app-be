@@ -9,7 +9,7 @@ export class AuthValidator {
           message: 'Email not valid type.',
         })
         .min(1, {
-          message: 'Email field is required.',
+          message: 'You need to put email.',
         })
         .max(100, {
           message: 'Maximum email length is 100 character.',

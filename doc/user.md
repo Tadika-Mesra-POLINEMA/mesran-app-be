@@ -8,6 +8,7 @@ Request Body:
 
 ```json
 {
+  "name": "Upin Ipin",
   "email": "upin@gmail.com",
   "phone": "081**********",
   "password": "abcdefgh"
@@ -23,7 +24,9 @@ Status Code: `201`
   "status": "success",
   "message": "User successfuly registered",
   "data": {
-    "email": "upin@gmail.com"
+    "email": "upin@gmail.com",
+    "accessToken": "your_access_token",
+    "refreshToken": "your_refresh_token"
   }
 }
 ```
@@ -62,16 +65,13 @@ Status Code: `400`
 
 ## Login User
 
-Endpoint: `POST /api/authentications/login`
+Endpoint: `POST /api/authentications`
 
 Request Body:
 
 ```json
 {
-  // You can use either email or phone
-  // But make sure you include one of them
   "email": "upin@gmail.com",
-  "phone": "081*********",
   "password": "abcdefg"
 }
 ```
@@ -93,12 +93,12 @@ Status Code: `200`:
 
 Response `fail`:
 
-Status Code: `400`, Not put email or phone
+Status Code: `400`, Not put email
 
 ```json
 {
   "status": "fail",
-  "message": "You need to put email or phone number"
+  "message": "You need to put email"
 }
 ```
 
@@ -224,67 +224,6 @@ Status Code: `400`:
 {
   "status": "fail",
   "message": "Token not found."
-}
-```
-
-## Add Profile
-
-Endpoint: `POST /api/users/profile`
-
-Headers:
-
-| Param         | Value          |
-| ------------- | -------------- |
-| Authorization | Bearer `token` |
-
-Request Body:
-
-```json
-{
-  "username": "siupin",
-  "firstname": "Upin",
-  "lastname": "Apin"
-}
-```
-
-Response `success`:
-
-Status Code: `201`
-
-```json
-{
-  "status": "success",
-  "message": "Successfully added profile",
-  "data": {
-    "username": "siupin",
-    "firstname": "Upin",
-    "lastname": "Apin"
-  }
-}
-```
-
-Response `fail`:
-
-Status Code: `400`
-
-```json
-{
-  "status": "fail",
-  "message": "Failed to add user profile"
-}
-```
-
-Response `client-error`:
-
-Status Code: `400`
-
-```json
-{
-  "status": "error",
-  "message": "Bad request",
-  "errors": {
-    "username": ["Username maximum 100 characters"]
-  }
 }
 ```
 

@@ -33,9 +33,9 @@ export class EventService {
       data: {
         name: createEventDto.name,
         description: createEventDto.description,
-        target_date: createEventDto.target_date,
+        target_date: new Date(createEventDto.target_date),
         location: createEventDto.location,
-        event_start: createEventDto.event_start,
+        event_start: new Date(createEventDto.event_start),
         dress: createEventDto.dress,
         theme: createEventDto.theme,
 
@@ -62,9 +62,43 @@ export class EventService {
 
     const events = await this.prismaService.event.findMany({
       include: {
-        owner: true,
-        participants: true,
-        activities: true,
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+          },
+        },
+        participants: {
+          where: {
+            accepted: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                phone: true,
+                profile: {
+                  select: {
+                    username: true,
+                    firstname: true,
+                    lastname: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        activities: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            activity_start: true,
+            activity_end: true,
+          },
+        },
       },
     });
 
@@ -109,6 +143,13 @@ export class EventService {
                 id: true,
                 email: true,
                 phone: true,
+                profile: {
+                  select: {
+                    username: true,
+                    firstname: true,
+                    lastname: true,
+                  },
+                },
               },
             },
           },
@@ -130,6 +171,12 @@ export class EventService {
     return events.map((event) => {
       return {
         ...event,
+        participants: event.participants
+          .filter((participant) => participant.user_id != userId)
+          .map((participant) => ({
+            ...participant.user,
+            ...participant,
+          })),
         is_owner: event.user_id === userId,
       };
     });
@@ -166,6 +213,13 @@ export class EventService {
                 id: true,
                 email: true,
                 phone: true,
+                profile: {
+                  select: {
+                    username: true,
+                    firstname: true,
+                    lastname: true,
+                  },
+                },
               },
             },
           },
@@ -188,6 +242,12 @@ export class EventService {
 
     return {
       ...event,
+      participants: event.participants
+        .filter((participant) => participant.user_id != userId)
+        .map((participant) => ({
+          ...participant.user,
+          ...participant,
+        })),
       is_owner: event.user_id === userId,
     };
   }

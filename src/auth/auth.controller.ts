@@ -36,7 +36,8 @@ export class AuthController {
 
     return {
       status: 'success',
-      message: 'Successfully logged in',
+      message:
+        'User successfully logged in, please use the otp code and provide verification key to claim your access token',
       data: response,
     };
   }

@@ -20,7 +20,6 @@ Request Body:
       "description": "Mari kita rayakan ultah upin",
       "date": "2024-10-24",
       "start": "2024-10-24T07:00:00.853Z",
-      "end": "2024-10-24T012:00:00.853Z",
       "dress": "choose_your_dress_in_app",
       "theme": "Halloween",
       "location": "Rumah Upin"
@@ -43,7 +42,6 @@ Status Code: `201`
       "description": "Mari kita rayakan ultah upin",
       "date": "2024-10-24",
       "start": "2024-10-24T07:00:00.853Z",
-      "end": "2024-10-24T012:00:00.853Z",
       "dress": "Halloween",
       "venue": "Rumah Upin"
     }
@@ -93,25 +91,22 @@ Status Code: `200`
         "owner": "uuid",
         "name": "Birthday",
         "description": "Mari kita rayakan ultah upin",
-        "targetDate": "2024-10-24",
-        "eventStart": "2024-10-24T07:00:00.853Z",
-        "eventEnd": "2024-10-24T012:00:00.853Z",
+        "target_date": "2024-10-24",
+        "event_start": "2024-10-24T07:00:00.853Z",
         "theme": "Halloween",
         "dress": "choosed_dress_in_app",
-        "venue": "Rumah Upin",
-        "coverColor": "yellow",
-        "coverType": "line",
-        "memberCount": 0,
-        "isDone": false,
-        "createdAt": "created_date",
-        "updatedAt": "updated_date",
-        "eventOwner": {
+        "location": "Rumah Upin",
+        "member_count": 0,
+        "is_done": false,
+        "created_at": "created_date",
+        "updated_at": "updated_date",
+        "owner": {
           "email": "upin@gmail.com",
           "phone": "081**********",
           "role": "USER",
           "profile": {}
         },
-        "eventActivities": [
+        "event_activities": [
           {
             "id": "uuid",
             "eventId": "uuid",
@@ -121,7 +116,7 @@ Status Code: `200`
             "activityEnd": "activity_end_date"
           }
         ],
-        "eventParticipants": [
+        "event_participants": [
           {
             "email": "upin@gmail.com",
             "phone": "081**********",
@@ -162,24 +157,23 @@ Status Code: `200`
         "owner": "uuid",
         "name": "Birthday",
         "description": "Mari kita rayakan ultah upin",
-        "targetDate": "2024-10-24",
-        "eventStart": "2024-10-24T07:00:00.853Z",
-        "eventEnd": "2024-10-24T012:00:00.853Z",
+        "target_date": "2024-10-24",
+        "event_start": "2024-10-24T07:00:00.853Z",
         "theme": "Halloween",
         "dress": "choosed_dress_in_app",
-        "venue": "Rumah Upin",
-        "memberCount": 0,
-        "isDone": false,
-        "createdAt": "created_date",
-        "updatedAt": "updated_date",
-        "eventOwner": {
+        "location": "Rumah Upin",
+        "member_count": 0,
+        "is_done": false,
+        "created_at": "created_date",
+        "updated_at": "updated_date",
+        "owner": {
           "email": "upin@gmail.com",
           "phone": "081**********",
           "role": "USER",
           "profile": {}
         },
-        "eventActivities": [],
-        "eventParticipants": [
+        "event_activities": [],
+        "event_participants": [
           {
             "email": "upin@gmail.com",
             "phone": "081**********",
@@ -228,27 +222,25 @@ Status Code: `200`
     "events": [
       {
         "id": "uuid",
-        "owner": "uuid",
         "name": "Birthday",
         "description": "Mari kita rayakan ultah upin",
-        "targetDate": "2024-10-24",
-        "eventStart": "2024-10-24T07:00:00.853Z",
-        "eventEnd": "2024-10-24T012:00:00.853Z",
-        "venue": "Rumah Upin",
+        "target_date": "2024-10-24",
+        "event_start": "2024-10-24T07:00:00.853Z",
+        "location": "Rumah Upin",
         "theme": "Halloween",
         "dress": "choosed_dress_in_app",
-        "memberCount": 0,
-        "isDone": false,
-        "createdAt": "created_date",
-        "updatedAt": "updated_date",
-        "eventOwner": {
+        "member_count": 0,
+        "is_done": false,
+        "created_at": "created_date",
+        "updated_at": "updated_date",
+        "owner": {
           "email": "upin@gmail.com",
           "phone": "081**********",
           "role": "USER",
           "profile": {}
         },
-        "eventActivities": [],
-        "eventParticipants": [
+        "event_activities": [],
+        "event_participants": [
           {
             "email": "upin@gmail.com",
             "phone": "081**********",
@@ -280,7 +272,7 @@ Request Body:
   "description": "This is the new birthday description", // optional
   "eventStart": "new_datetime_event_start", // optional
   "eventEnd": "new_datetime_event_end", // optional
-  "venue": "Rumah Opan", // optional
+  "location": "Rumah Opan", // optional
   "dress": "Halloween"
 }
 ```

@@ -7,6 +7,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
+    allowedHeaders: 'Authorization',
   });
 
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);

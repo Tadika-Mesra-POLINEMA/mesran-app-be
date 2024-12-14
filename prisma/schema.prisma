@@ -49,8 +49,8 @@ model EventActivity {
   event_id       String
   title          String    @db.VarChar(100)
   description    String    @db.Text
-  activity_start DateTime  @db.Date
-  activity_end   DateTime  @db.Date
+  activity_start DateTime
+  activity_end   DateTime 
   created_at     DateTime  @default(now())
   updated_at     DateTime? @updatedAt
   event          Event     @relation(fields: [event_id], references: [id], onDelete: Cascade)
@@ -71,7 +71,7 @@ model Event {
   updated_at    DateTime            @updatedAt
   dress         String              @db.VarChar(30)
   location      String              @db.VarChar(120)
-  target_date   DateTime            @db.Date
+  target_date   DateTime
   theme         String              @db.VarChar(50)
   is_canceled   Boolean             @default(false)
   activities    EventActivity[]

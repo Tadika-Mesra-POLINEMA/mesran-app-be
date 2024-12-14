@@ -1,4 +1,5 @@
 import { Activity } from '../activity/entities/activity.entity';
+import { Participant } from '../participant/entity/participant.entity';
 
 export class Event {
   id: string;
@@ -18,6 +19,6 @@ export class EventWithDetail extends Event {
     phone: string;
   };
   is_owner: boolean;
-  participants: any[]; // assume it's any for now
+  participants: Participant[];
   activities: Activity[];
 }

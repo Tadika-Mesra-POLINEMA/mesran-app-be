@@ -5,10 +5,7 @@ import { MailModule } from 'src/mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 
-console.log('TOKEN_SECRET IN USER', process.env.TOKEN_SECRET);
-
 @Module({
-  providers: [UserService],
   controllers: [UserController],
   imports: [
     MailModule,
@@ -21,5 +18,6 @@ console.log('TOKEN_SECRET IN USER', process.env.TOKEN_SECRET);
       maxRedirects: 5,
     }),
   ],
+  providers: [UserService],
 })
 export class UserModule {}

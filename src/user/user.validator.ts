@@ -2,6 +2,14 @@ import { z, ZodType } from 'zod';
 
 export class UserValidator {
   static readonly REGISTER: ZodType = z.object({
+    name: z
+      .string()
+      .min(3, {
+        message: 'Name at least 3 character.',
+      })
+      .max(50, {
+        message: 'Maximum name is 50 character.',
+      }),
     email: z
       .string()
       .email({

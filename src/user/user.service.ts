@@ -74,13 +74,30 @@ export class UserService {
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
 
     const registeredUser = await this.prismaService.user.create({
-      data: registerRequest,
+      data: {
+        email: registerRequest.email,
+        phone: registerRequest.phone,
+        password: registerRequest.password,
+      },
     });
+
+    console.log(registerRequest);
+    const nameSplitted = registerRequest.name.split(' ');
+    console.log(nameSplitted);
+
+    const generatedUsername = registeredUser.email.split('@')[0];
+    const generatedFirstname = nameSplitted
+      .map((name, index) => (index < 2 ? name : ''))
+      .join(' ');
+    const generatedLastname = nameSplitted
+      .map((name, index) => (index >= 2 ? name : ''))
+      .join(' ');
 
     await this.prismaService.profile.create({
       data: {
-        username: request.username,
-        firstname: request.username.slice(0, 1).toUpperCase(),
+        username: generatedUsername,
+        firstname: generatedFirstname,
+        lastname: generatedLastname,
         user: {
           connect: {
             id: registeredUser.id,
@@ -164,6 +181,7 @@ export class UserService {
         },
       );
 
+      console.log(response);
       this.logger.info(`Response status ${response.status}`);
 
       if (response.status === 201) {
@@ -291,7 +309,7 @@ export class UserService {
    * @param userId User id
    * @returns User profile
    */
-  async getUser(userId: string): Promise<Omit<User, 'password'>> {
+  async getUser(userId: string): Promise<User> {
     this.logger.info(`Get user profile ${userId}`);
 
     return await this.prismaService.user

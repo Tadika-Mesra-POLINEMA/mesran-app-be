@@ -12,15 +12,33 @@ export class ActivityValidator {
       activity_start: z
         .string()
         .datetime('yyyy-MM-dd HH:mm:ss')
-        .refine((val) => new Date(val) > new Date(), {
-          message: 'Activity start time cannot be earlier than now',
-        }),
+        .refine(
+          (val) => {
+            const activityStart = new Date(val);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            return activityStart.getTime() >= now.getTime();
+          },
+          {
+            message: 'Activity start time cannot be earlier than now',
+          },
+        ),
       activity_end: z
         .string()
         .datetime('yyyy-MM-dd HH:mm:ss')
-        .refine((val) => new Date(val) > new Date(), {
-          message: 'Activity end time cannot be earlier than now',
-        }),
+        .refine(
+          (val) => {
+            const activityEnd = new Date(val);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            return activityEnd.getTime() >= now.getTime();
+          },
+          {
+            message: 'Activity end time cannot be earlier than now',
+          },
+        ),
     })
     .refine(
       (val) => new Date(val.activity_start) < new Date(val.activity_end),

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/common/prisma.service';
 import { Logger } from 'winston';
 import { CreateParticipantResponse } from './dto/create-participant.dto';
 import { NotfoundException } from 'src/common/exceptions/notfound.exception';
+import { Participant } from './entity/participant.entity';
 
 @Injectable()
 export class ParticipantService {
@@ -62,22 +63,53 @@ export class ParticipantService {
       },
     );
 
-    await this.prismaService.event.update({
-      where: {
-        id: eventId,
-      },
-      data: {
-        member_count: {
-          increment: 1,
-        },
-      },
-    });
-
     this.logger.info('Participant added');
 
     return {
       participantId: createdParticipant.id,
     };
+  }
+
+  /**
+   * Get all participants
+   *
+   * @param eventId Event ID to get all participants
+   */
+  async getParticipants(eventId: string): Promise<Participant[]> {
+    this.logger.info('Getting all participants');
+
+    const event = await this.prismaService.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    });
+
+    if (!event) throw new NotfoundException('Event not found');
+
+    const participants = await this.prismaService.eventParticipant.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            profile: {
+              select: {
+                username: true,
+                firstname: true,
+                lastname: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    this.logger.info('Participants retrieved');
+
+    return participants.filter(
+      (participant) => participant.user_id != event.user_id,
+    );
   }
 
   /**
@@ -88,13 +120,13 @@ export class ParticipantService {
   async accept(participantId: string) {
     this.logger.info('Accepting a participant');
 
-    const isJoinedEvent = await this.prismaService.eventParticipant.findFirst({
+    const event = await this.prismaService.eventParticipant.findFirst({
       where: {
         id: participantId,
       },
     });
 
-    if (!isJoinedEvent)
+    if (!event)
       throw new InvariantException('User is not a participant of the event');
 
     const isAlreadyAccepted =
@@ -114,6 +146,17 @@ export class ParticipantService {
       },
       data: {
         accepted: true,
+      },
+    });
+
+    await this.prismaService.event.update({
+      where: {
+        id: event.id,
+      },
+      data: {
+        member_count: {
+          increment: 1,
+        },
       },
     });
 

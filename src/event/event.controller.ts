@@ -74,7 +74,7 @@ export class EventController {
       );
     }
 
-    await this.participantService.add(createdEvent.id, userId);
+    await this.participantService.add(createdEvent.id, userId, true);
 
     return {
       status: 'success',
@@ -127,8 +127,6 @@ export class EventController {
     const userId = request.user.id;
 
     const events = await this.eventService.findByUserId(userId);
-
-    console.log(events);
 
     return {
       status: 'success',
