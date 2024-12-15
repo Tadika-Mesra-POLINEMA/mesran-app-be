@@ -6,12 +6,14 @@ import { Logger } from 'winston';
 import { CreateParticipantResponse } from './dto/create-participant.dto';
 import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 import { Participant } from './entity/participant.entity';
+import { ParticipantNotificationService } from 'src/notification/participant.notification.service';
 
 @Injectable()
 export class ParticipantService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
+    private participantNotificationService: ParticipantNotificationService,
   ) {}
 
   /**
@@ -27,13 +29,13 @@ export class ParticipantService {
   ): Promise<CreateParticipantResponse> {
     this.logger.info('Adding a participant');
 
-    const isEventExist = await this.prismaService.event.findFirst({
+    const event = await this.prismaService.event.findFirst({
       where: {
         id: eventId,
       },
     });
 
-    if (!isEventExist) throw new NotfoundException('Event not found');
+    if (!event) throw new NotfoundException('Event not found');
 
     const isJoinedEvent = await this.prismaService.eventParticipant.findFirst({
       where: {
@@ -64,6 +66,13 @@ export class ParticipantService {
     );
 
     this.logger.info('Participant added');
+
+    if (!_isAccepted) {
+      this.participantNotificationService.joinedParticipantNotification(
+        event,
+        userId,
+      );
+    }
 
     return {
       participantId: createdParticipant.id,
@@ -124,6 +133,9 @@ export class ParticipantService {
       where: {
         id: participantId,
       },
+      include: {
+        event: true,
+      },
     });
 
     if (!event)
@@ -151,7 +163,7 @@ export class ParticipantService {
 
     await this.prismaService.event.update({
       where: {
-        id: event.id,
+        id: event.event_id,
       },
       data: {
         member_count: {
@@ -159,6 +171,11 @@ export class ParticipantService {
         },
       },
     });
+
+    this.participantNotificationService.acceptedParticipantNotification(
+      event.event,
+      event.user_id,
+    );
 
     this.logger.info('Participant accepted');
   }
@@ -171,20 +188,31 @@ export class ParticipantService {
   async decline(participantId: string) {
     this.logger.info('Declining a participant');
 
-    const isJoinedEvent = await this.prismaService.eventParticipant.findFirst({
+    const event = await this.prismaService.eventParticipant.findFirst({
       where: {
         id: participantId,
       },
+      include: {
+        event: true,
+      },
     });
 
-    if (!isJoinedEvent)
+    if (!event)
       throw new InvariantException('User is not a participant of the event');
 
-    await this.prismaService.eventParticipant.delete({
+    await this.prismaService.eventParticipant.update({
       where: {
         id: participantId,
       },
+      data: {
+        declined: true,
+      },
     });
+
+    this.participantNotificationService.declineParticipantNotification(
+      event.event,
+      event.user_id,
+    );
 
     this.logger.info('Participant declined');
   }

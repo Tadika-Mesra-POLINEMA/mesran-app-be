@@ -1,11 +1,119 @@
-<html lang='en'>
+<!DOCTYPE html>
+<html lang="id">
   <head>
-    <meta charset='UTF-8' />
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>OTP Verification</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi OTP</title>
   </head>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 2rem auto;
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .header {
+      background-color: #FE4F34;
+      padding: 10px;
+      border-radius: 8px 8px 0 0;
+      color: #fff;
+      margin: -20px -20px 15px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 8px 0;
+      color: #555;
+    }
+
+    .otp-code {
+      font-size: 28px;
+      font-weight: bold;
+      color: #FE4F34;
+      background-color: #f9f9f9;
+      padding: 8px 15px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 15px 0;
+    }
+
+    .button {
+      display: inline-block;
+      background-color: #FE4F34;
+      color: #fff;
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      margin: 12px 0;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #FE4F34;
+    }
+
+    footer {
+      font-size: 12px;
+      color: #777;
+      margin-top: 15px;
+    }
+
+    .footer-link {
+      color: #FE4F34;
+      text-decoration: none;
+    }
+
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+  
   <body>
-    <h1>OTP Verification</h1>
-    <p>Your otp code is {{otp}}</p>
+    <div class="container">
+      <div class="header">
+        <h1>Verifikasi OTP</h1>
+      </div>
+      <p>Halo {{name}},</p>
+      <p>
+        Terima kasih telah menggunakan layanan kami! Untuk melanjutkan permintaan Anda, harap gunakan kode OTP di bawah ini. Kode ini berlaku selama <strong>5 menit</strong>.
+      </p>
+      <div class="otp-code">{{otp}}</div>
+      <p>Jika Anda tidak meminta kode ini, harap abaikan email ini.</p>
+      <footer>
+        Butuh bantuan? Hubungi kami di
+        <a href="mailto:tmesra008@gmail.com" class="footer-link">tmesra008@gmail.com</a>
+      </footer>
+    </div>
   </body>
 </html>

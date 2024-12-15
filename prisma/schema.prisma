@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(uuid())
-  email              String              @unique @db.VarChar(100)
-  phone              String              @db.Char(13)
-  password           String              @db.Text
-  role               Role                @default(USER)
-  created_at         DateTime            @default(now())
-  updated_at         DateTime?           @updatedAt
-  is_face_registered Boolean             @default(false)
-  notifications      EventNotification[]
+  id                 String    @id @default(uuid())
+  email              String    @unique @db.VarChar(100)
+  phone              String    @db.Char(13)
+  password           String    @db.Text
+  role               Role      @default(USER)
+  created_at         DateTime  @default(now())
+  updated_at         DateTime? @updatedAt
+  is_face_registered Boolean   @default(false)
+
   event_participants EventParticipant[]
   events             Event[]
   messages           Message[]
   profile            Profile?
   chat_rooms         UserChatRoom[]
+  notifications      Notification[]     @relation("recipient_relation")
+  sent_notifications Notification[]     @relation("sender_relation")
 
   @@map("users")
 }
@@ -50,34 +52,35 @@ model EventActivity {
   title          String    @db.VarChar(100)
   description    String    @db.Text
   activity_start DateTime
-  activity_end   DateTime 
+  activity_end   DateTime
   created_at     DateTime  @default(now())
   updated_at     DateTime? @updatedAt
-  event          Event     @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
 
   @@index([event_id], map: "event_activities_event_id_fkey")
   @@map("event_activities")
 }
 
 model Event {
-  id            String              @id @default(uuid())
-  user_id       String
-  name          String              @db.VarChar(100)
-  event_start   DateTime
-  member_count  Int                 @default(0)
-  description   String              @db.Text
-  is_done       Boolean             @default(false)
-  created_at    DateTime            @default(now())
-  updated_at    DateTime            @updatedAt
-  dress         String              @db.VarChar(30)
-  location      String              @db.VarChar(120)
-  target_date   DateTime
-  theme         String              @db.VarChar(50)
-  is_canceled   Boolean             @default(false)
-  activities    EventActivity[]
-  notifications EventNotification[]
-  participants  EventParticipant[]
-  owner         User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id           String   @id @default(uuid())
+  user_id      String
+  name         String   @db.VarChar(100)
+  event_start  DateTime
+  member_count Int      @default(0)
+  description  String   @db.Text
+  is_done      Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  dress        String   @db.VarChar(30)
+  location     String   @db.VarChar(120)
+  target_date  DateTime
+  theme        String   @db.VarChar(50)
+  is_canceled  Boolean  @default(false)
+
+  activities   EventActivity[]
+  participants EventParticipant[]
+  owner        User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id], map: "events_user_id_fkey")
   @@map("events")
@@ -98,28 +101,14 @@ model EventParticipant {
   @@map("event_participants")
 }
 
-model EventNotification {
-  id         String   @id @default(uuid())
-  user_id    String
-  event_id   String
-  sent_at    DateTime
-  read       Boolean
-  created_at DateTime @default(now())
-  event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [user_id], references: [id])
-
-  @@index([event_id], map: "event_notifications_event_id_fkey")
-  @@index([user_id], map: "event_notifications_user_id_fkey")
-  @@map("event_notifications")
-}
-
 model ChatRoom {
-  id         String         @id @default(uuid())
+  id         String    @id @default(uuid())
   is_group   Boolean
-  created_at DateTime       @default(now())
-  updated_at DateTime?      @updatedAt
-  messages   Message[]
-  users      UserChatRoom[]
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  messages Message[]
+  users    UserChatRoom[]
 
   @@map("chat_rooms")
 }
@@ -131,8 +120,9 @@ model Message {
   content    String    @db.Text
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
-  chatroom   ChatRoom  @relation(fields: [room_id], references: [id])
-  user       User      @relation(fields: [user_id], references: [id])
+
+  chatroom ChatRoom @relation(fields: [room_id], references: [id])
+  user     User     @relation(fields: [user_id], references: [id])
 
   @@index([room_id], map: "messages_room_id_fkey")
   @@index([user_id], map: "messages_user_id_fkey")
@@ -144,12 +134,35 @@ model UserChatRoom {
   user_id   String
   room_id   String
   joined_at DateTime @default(now())
-  room      ChatRoom @relation(fields: [room_id], references: [id])
-  user      User     @relation(fields: [user_id], references: [id])
+
+  room ChatRoom @relation(fields: [room_id], references: [id])
+  user User     @relation(fields: [user_id], references: [id])
 
   @@unique([user_id, room_id])
   @@index([room_id], map: "user_chat_rooms_room_id_fkey")
   @@map("user_chat_rooms")
+}
+
+model Notification {
+  id           String           @id @default(uuid())
+  sender_id    String?
+  recipient_id String
+  content      String           @db.Text
+  type         NotificationType @default(MESSAGE)
+  sent_at      DateTime         @default(now())
+  created_at   DateTime         @default(now())
+
+  sender    User? @relation("sender_relation", fields: [sender_id], references: [id])
+  recipient User  @relation("recipient_relation", fields: [recipient_id], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  MESSAGE
+  ALERT
+  REMINDER
+  CONFIRMATION
 }
 
 enum Role {

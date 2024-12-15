@@ -8,12 +8,14 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { PrismaService } from 'src/common/prisma.service';
 import { EventWithDetail } from './entities/event.entity';
 import { InviteEventResponseDto } from './dto/invite-event.dto';
+import { EventNotificationService } from 'src/notification/event.notification.service';
 
 @Injectable()
 export class EventService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
+    private eventNotificationService: EventNotificationService,
   ) {}
 
   /**
@@ -322,6 +324,14 @@ export class EventService {
   async cancel(eventId: string): Promise<void> {
     this.logger.info('Cancelling event', { eventId });
 
+    const event = await this.prismaService.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    });
+
+    if (!event) throw new NotFoundException('Event not found');
+
     await this.prismaService.event.update({
       where: {
         id: eventId,
@@ -330,6 +340,8 @@ export class EventService {
         is_canceled: true,
       },
     });
+
+    this.eventNotificationService.cancelEventNotification(event);
 
     this.logger.info('Event cancelled');
   }

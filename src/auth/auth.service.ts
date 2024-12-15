@@ -68,9 +68,12 @@ export class AuthService {
       throw new InvariantException('You need to put email or phone number');
     }
 
-    const user: User = await this.prismaService.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         OR: [{ email: loginRequest.email }, { phone: loginRequest.phone }],
+      },
+      include: {
+        profile: true,
       },
     });
 
@@ -107,12 +110,13 @@ export class AuthService {
 
       await this.mailService.sendMail({
         to: user.email,
-        subject: 'OTP Verification',
+        subject: 'Verifikasi OTP Evenify',
         template: 'otp',
-        context: { otp },
+        context: {
+          name: user.profile.firstname,
+          otp,
+        },
       });
-    } else if (loginRequest.phone) {
-      // TODO: SEND SMS VERIFICATION
     }
 
     return {
