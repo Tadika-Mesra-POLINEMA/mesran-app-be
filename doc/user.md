@@ -85,11 +85,12 @@ Status Code: `200`:
   "status": "success",
   "message": "User successfully logged in, please use the otp code and provide verification key to claim your access token",
   "data": {
-    "verificationKey": "generated_key",
-    "otp": "otp_code"
+    "verificationKey": "generated_key"
   }
 }
 ```
+
+`Nb: You will retrieve an email from us about your OTP key. Use the OTP key to verify your session`
 
 Response `fail`:
 
@@ -119,8 +120,7 @@ Request Body:
 
 ```json
 {
-  "verificationKey": "verification_key",
-  "otp": "123456"
+  "verificationKey": "verification_key"
 }
 ```
 
@@ -244,12 +244,16 @@ Status Code: `200`
 ```json
 {
   "status": "success",
-  "message": "Successfully obtained user profile"
+  "message": "Successfully obtained user profile",
   "data": {
     "email": "upin@gmail.com",
     "phone": "081**********",
     "role": "USER",
-    "profile": {}
+    "profile": {
+      "username": "upin",
+      "firstname": "Upin Ipin",
+      "lastname": ""
+    }
   }
 }
 ```
@@ -268,7 +272,9 @@ Request Body:
 
 ```json
 {
-  "phone": "085*********"
+  "email": "newemail@gmail.com",
+  "password_before": "upin1234",
+  "password": "upin4321"
 }
 ```
 
@@ -297,12 +303,8 @@ Request Body:
 
 ```json
 {
-  "username": "siapin",
-  // optional, if want to change username
-  "firstname": "Apin",
-  // optional, if want to change firstname
-  "lastname": "Upin"
-  // optional, if want to change lastname
+  "name": "Upin Ipin New",
+  "phone": "085**********"
 }
 ```
 
@@ -326,7 +328,7 @@ Status Code: `400`
   "status": "error",
   "message": "Bad request",
   "errors": {
-    "username": ["Username too short"]
+    "phone": ["Phone number not valid"]
   }
 }
 ```

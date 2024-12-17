@@ -1,3 +1,5 @@
 export class UpdateUserRequest {
-  phone: string;
+  email: string;
+  password_before: string;
+  password: string;
 }

@@ -368,8 +368,8 @@ Request Body:
 {
   "title": "Meniup lilin",
   "description": "Upin akan meniup lilin",
-  "activityStart": "activity_start_time",
-  "activityEnd": "activity_end_time"
+  "activity_start": "activity_start_time",
+  "activity_end": "activity_end_time"
 }
 ```
 
@@ -386,8 +386,8 @@ Status Code: `201`
       "id": "uuid",
       "title": "Meniup lilin",
       "description": "Upin akan meniup lilin",
-      "activityStart": "activity_start_time",
-      "activityEnd": "activity_end_time",
+      "activity_start": "activity_start_time",
+      "activity_end": "activity_end_time",
       "createdAt": "created_at_datetime",
       "updatedAt": "updated_at_datetime"
     }
@@ -442,8 +442,8 @@ Response `success`:
         "id": "uuid",
         "title": "Meniup lilin",
         "description": "Upin akan meniup lilin",
-        "activityStart": "activity_start_time",
-        "activityEnd": "activity_end_time",
+        "activity_start": "activity_start_time",
+        "activity_end": "activity_end_time",
         "createdAt": "created_at_datetime",
         "updatedAt": "updated_at_datetime"
       }
@@ -468,8 +468,8 @@ Request Body:
 {
   "title": "new title",
   "description": "new activity description",
-  "activityStart": "activity_start_datetime",
-  "activityEnd": "activity_end_datetime"
+  "activity_start": "activity_start_datetime",
+  "activity_end": "activity_end_datetime"
 }
 ```
 
@@ -486,8 +486,8 @@ Status Code: `200`
       "id": "uuid",
       "title": "new title",
       "description": "new activity description",
-      "activityStart": "activity_start_datetime",
-      "activityEnd": "activity_end_datetime"
+      "activity_start": "activity_start_datetime",
+      "activity_end": "activity_end_datetime"
     }
   }
 }

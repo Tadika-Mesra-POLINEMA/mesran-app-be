@@ -28,8 +28,13 @@ export class ParticipantNotificationService {
         return user;
       });
 
-    this.prismaService.notification.create({
+    await this.prismaService.eventNotification.create({
       data: {
+        event: {
+          connect: {
+            id: event.id,
+          },
+        },
         recipient: {
           connect: {
             id: event.user_id,
@@ -79,8 +84,13 @@ export class ParticipantNotificationService {
         return user;
       });
 
-    await this.prismaService.notification.create({
+    await this.prismaService.eventNotification.create({
       data: {
+        event: {
+          connect: {
+            id: event.id,
+          },
+        },
         recipient: {
           connect: {
             id: recipient.id,
@@ -130,8 +140,13 @@ export class ParticipantNotificationService {
         return user;
       });
 
-    await this.prismaService.notification.create({
+    await this.prismaService.eventNotification.create({
       data: {
+        event: {
+          connect: {
+            id: event.id,
+          },
+        },
         recipient: {
           connect: {
             id: recipient.id,

@@ -80,7 +80,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('face'))
-  @Post('face/predict')
+  @Post('faces/predict')
   async predictFace(
     @UploadedFile() face: Express.Multer.File,
   ): Promise<WebResponse<User>> {

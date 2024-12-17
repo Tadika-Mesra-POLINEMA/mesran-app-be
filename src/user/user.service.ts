@@ -81,16 +81,16 @@ export class UserService {
       },
     });
 
-    console.log(registerRequest);
     const nameSplitted = registerRequest.name.split(' ');
-    console.log(nameSplitted);
 
     const generatedUsername = registeredUser.email.split('@')[0];
     const generatedFirstname = nameSplitted
-      .map((name, index) => (index < 2 ? name : ''))
+      .filter((_, index) => index < 2)
+      .map((name) => name)
       .join(' ');
     const generatedLastname = nameSplitted
-      .map((name, index) => (index >= 2 ? name : ''))
+      .filter((_, index) => index >= 2)
+      .map((name) => name)
       .join(' ');
 
     await this.prismaService.profile.create({
@@ -212,7 +212,6 @@ export class UserService {
   /**
    * Method to predict face
    *
-   * @param userId User id
    * @param face Image used for predicting user face
    * @returns Promise<void>
    */
@@ -244,11 +243,10 @@ export class UserService {
 
         const confidenceVal = response.data.confidence;
 
-        if (confidenceVal < 0.5) {
+        if (confidenceVal < 0.5)
           throw new InvariantException('Confidence value is less than 0.5');
-        }
 
-        const user = await this.prismaService.user.findFirst({
+        return await this.prismaService.user.findFirst({
           where: {
             id: response.data.user_id,
           },
@@ -256,8 +254,6 @@ export class UserService {
             profile: true,
           },
         });
-
-        return user;
       } else {
         this.logger.info('Failed to predict face');
         throw new InvariantException('Failed to predict face');
@@ -339,17 +335,37 @@ export class UserService {
   async updateUser(request: UpdateUserRequest, userId: string): Promise<void> {
     this.logger.info(`Update user profile ${JSON.stringify(request)}`);
 
-    const updateRequest = this.validationService.validate(
+    const updateRequest: UpdateUserRequest = this.validationService.validate(
       UserValidator.UPDATE_USER,
       request,
     );
+
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user)
+      throw new NotfoundException('Cannot update user, User not found');
+
+    const isPasswordMatch = await bcrypt.compare(
+      updateRequest.password_before,
+      user.password,
+    );
+
+    if (!isPasswordMatch)
+      throw new InvariantException(
+        "Cannot update user, your password isn't match with your previous password",
+      );
 
     await this.prismaService.user.update({
       where: {
         id: userId,
       },
       data: {
-        phone: updateRequest.phone,
+        email: updateRequest.email,
+        password: updateRequest.password,
       },
     });
   }
@@ -366,16 +382,39 @@ export class UserService {
   ): Promise<void> {
     this.logger.info(`Update profile ${JSON.stringify(request)}`);
 
-    const updateRequest = this.validationService.validate(
-      UserValidator.UPDATE_PROFILE,
-      request,
-    );
+    const updateRequest: UpdateProfileUserRequest =
+      await this.validationService.validate(
+        UserValidator.UPDATE_PROFILE,
+        request,
+      );
+
+    await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        phone: updateRequest.phone,
+      },
+    });
+
+    const nameSplitted = updateRequest.name.split(' ');
+    const generatedFirstname = nameSplitted
+      .filter((_, index) => index < 2)
+      .map((name) => name)
+      .join(' ');
+    const generatedLastname = nameSplitted
+      .filter((_, index) => index >= 2)
+      .map((name) => name)
+      .join(' ');
 
     await this.prismaService.profile.update({
       where: {
         user_id: userId,
       },
-      data: updateRequest,
+      data: {
+        firstname: generatedFirstname,
+        lastname: generatedLastname,
+      },
     });
   }
 }

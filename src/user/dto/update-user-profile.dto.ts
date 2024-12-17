@@ -1,5 +1,4 @@
 export class UpdateProfileUserRequest {
-  username: string;
-  firstname: string;
-  lastname: string;
+  name: string;
+  phone: string;
 }

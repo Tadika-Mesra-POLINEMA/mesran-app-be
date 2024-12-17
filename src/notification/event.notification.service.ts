@@ -19,8 +19,13 @@ export class EventNotificationService {
       });
 
     eventParticipants.forEach(async (participant) => {
-      await this.prismaService.notification.create({
+      await this.prismaService.eventNotification.create({
         data: {
+          event: {
+            connect: {
+              id: event.id,
+            },
+          },
           recipient: {
             connect: {
               id: participant.user_id,
@@ -47,8 +52,13 @@ export class EventNotificationService {
       });
 
     eventParticipants.forEach(async (participant) => {
-      await this.prismaService.notification.create({
+      await this.prismaService.eventNotification.create({
         data: {
+          event: {
+            connect: {
+              id: event.id,
+            },
+          },
           recipient: {
             connect: {
               id: participant.user_id,

@@ -7,6 +7,7 @@ import { CreateParticipantResponse } from './dto/create-participant.dto';
 import { NotfoundException } from 'src/common/exceptions/notfound.exception';
 import { Participant } from './entity/participant.entity';
 import { ParticipantNotificationService } from 'src/notification/participant.notification.service';
+import { ParticipantAttendance } from './dto/participant-attendance.dto';
 
 @Injectable()
 export class ParticipantService {
@@ -21,6 +22,7 @@ export class ParticipantService {
    *
    * @param eventId Event id to add a participant
    * @param userId User id to add a participant
+   * @param _isAccepted Is participant accepted or not
    */
   async add(
     eventId: string,
@@ -68,7 +70,7 @@ export class ParticipantService {
     this.logger.info('Participant added');
 
     if (!_isAccepted) {
-      this.participantNotificationService.joinedParticipantNotification(
+      await this.participantNotificationService.joinedParticipantNotification(
         event,
         userId,
       );
@@ -77,6 +79,55 @@ export class ParticipantService {
     return {
       participantId: createdParticipant.id,
     };
+  }
+
+  /**
+   * Attending participant to an event
+   *
+   * @param participantId Participant ID to attend the participant
+   */
+  async attend(participantId: string): Promise<void> {
+    await this.prismaService.eventParticipant.update({
+      where: {
+        id: participantId,
+      },
+      data: {
+        is_attended: true,
+      },
+    });
+  }
+
+  /**
+   * Absence participant to an event
+   *
+   * @param participantId Participant ID to absence the participant
+   */
+  async absence(participantId: string): Promise<void> {
+    await this.prismaService.eventParticipant.update({
+      where: {
+        id: participantId,
+      },
+      data: {
+        is_attended: false,
+      },
+    });
+  }
+
+  /**
+   * Get participant ID
+   *
+   * @param eventId Event ID to get participant ID
+   * @param userId User ID to get participant ID
+   */
+  async getParticipantId(eventId: string, userId: string): Promise<string> {
+    return this.prismaService.eventParticipant
+      .findFirst({
+        where: {
+          event_id: eventId,
+          user_id: userId,
+        },
+      })
+      .then((response) => response.id);
   }
 
   /**
@@ -96,6 +147,10 @@ export class ParticipantService {
     if (!event) throw new NotfoundException('Event not found');
 
     const participants = await this.prismaService.eventParticipant.findMany({
+      where: {
+        event_id: eventId,
+        user_id: { not: event.user_id },
+      },
       include: {
         user: {
           select: {
@@ -116,9 +171,65 @@ export class ParticipantService {
 
     this.logger.info('Participants retrieved');
 
-    return participants.filter(
-      (participant) => participant.user_id != event.user_id,
-    );
+    return participants;
+  }
+
+  /**
+   * Get participant attendance
+   *
+   * @param eventId Event ID to get participant attendance
+   */
+  async getParticipantAttendance(
+    eventId: string,
+  ): Promise<ParticipantAttendance> {
+    this.logger.info('Getting participant attendance');
+
+    const event = await this.prismaService.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    });
+
+    if (!event) throw new NotfoundException('Event not found');
+
+    const participants = await this.prismaService.eventParticipant.findMany({
+      where: {
+        event_id: eventId,
+        user_id: { not: event.user_id },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            profile: {
+              select: {
+                username: true,
+                firstname: true,
+                lastname: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        user: {
+          profile: {
+            firstname: 'asc',
+          },
+        },
+      },
+    });
+
+    this.logger.info('Participant attendance retrieved');
+
+    return {
+      attends: participants.filter((participant) => participant.is_attended),
+      not_yet_attends: participants.filter(
+        (participant) => !participant.is_attended,
+      ),
+    };
   }
 
   /**
@@ -172,7 +283,14 @@ export class ParticipantService {
       },
     });
 
-    this.participantNotificationService.acceptedParticipantNotification(
+    await this.prismaService.eventNotification.deleteMany({
+      where: {
+        event_id: event.id,
+        recipient_id: event.event.user_id,
+      },
+    });
+
+    await this.participantNotificationService.acceptedParticipantNotification(
       event.event,
       event.user_id,
     );
@@ -209,7 +327,14 @@ export class ParticipantService {
       },
     });
 
-    this.participantNotificationService.declineParticipantNotification(
+    await this.prismaService.eventNotification.deleteMany({
+      where: {
+        event_id: event.event_id,
+        recipient_id: event.event.user_id,
+      },
+    });
+
+    await this.participantNotificationService.declineParticipantNotification(
       event.event,
       event.user_id,
     );

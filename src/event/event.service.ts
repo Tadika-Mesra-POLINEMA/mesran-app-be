@@ -125,7 +125,12 @@ export class EventService {
 
     const events = await this.prismaService.event.findMany({
       where: {
-        user_id: userId,
+        participants: {
+          some: {
+            user_id: userId,
+            accepted: true,
+          },
+        },
       },
       include: {
         owner: {

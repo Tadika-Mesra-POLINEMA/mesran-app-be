@@ -103,8 +103,6 @@ export class AuthService {
     );
 
     if (loginRequest.email) {
-      // TODO: SEND EMAIL
-
       this.logger.info(`Sending email to ${user.email}`);
       this.logger.info(`Otp: ${otp}`);
 
@@ -118,6 +116,8 @@ export class AuthService {
         },
       });
     }
+
+    console.log('OTP: ', otp);
 
     return {
       verificationKey: otpKey,
