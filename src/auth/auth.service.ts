@@ -3,6 +3,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import * as bcrypt from 'bcrypt';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
@@ -93,15 +94,6 @@ export class AuthService {
     const otp = this.otpService.generate(6);
     const otpKey = uuid();
 
-    await this.cacheManager.set(
-      otpKey,
-      JSON.stringify({
-        userId: user.id,
-        code: otp,
-      }),
-      3600000,
-    );
-
     if (loginRequest.email) {
       this.logger.info(`Sending email to ${user.email}`);
       this.logger.info(`Otp: ${otp}`);
@@ -117,11 +109,19 @@ export class AuthService {
       });
     }
 
-    console.log('OTP: ', otp);
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    await this.cacheManager.set(
+      otpKey,
+      JSON.stringify({
+        userId: user.id,
+        code: hashedOtp,
+      }),
+      3600000,
+    );
 
     return {
       verificationKey: otpKey,
-      otp,
     };
   }
 
@@ -149,7 +149,9 @@ export class AuthService {
 
     const otp: OTP = JSON.parse(cachedOtp);
 
-    if (otp.code !== verifyRequest.otp) {
+    const isOtpMatched = await bcrypt.compare(verifyRequest.otp, otp.code);
+
+    if (!isOtpMatched) {
       throw new AuthenticationException('OTP is not match.');
     }
 

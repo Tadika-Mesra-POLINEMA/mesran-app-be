@@ -18,7 +18,7 @@ import { NotificationData } from './dto/notification-data.dto';
   },
 })
 export class NotificationGateway {
-  private clientMap = new Map<string, string>(); // Map to store clientId and userId
+  private clientMap = new Map<string, string>();
 
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
@@ -28,18 +28,16 @@ export class NotificationGateway {
   @WebSocketServer()
   server: Server;
 
-  // Handle client connection and store clientId with userId
   @SubscribeMessage('connect')
   handleConnection(client: any): void {
     const token = client.handshake.query.token;
-    console.log(token);
 
     if (token) {
       try {
         const decoded = this.jwtService.verify(token) as { id: string };
 
         if (decoded) {
-          this.clientMap.set(client.id, decoded.id);
+          this.clientMap.set(decoded.id, client.id);
           this.logger.info('Client connected', { clientId: client.id });
         } else {
           this.logger.error('Failed to decode token');
@@ -56,10 +54,7 @@ export class NotificationGateway {
   }
 
   sendNotificationToClient(userId: string, message: NotificationData): void {
-    const clientId = [...this.clientMap.entries()].find(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      ([_, value]) => value === userId,
-    )?.[0];
+    const clientId = this.clientMap.get(userId);
 
     if (clientId) {
       const clientSocket = this.server.sockets.sockets.get(clientId);

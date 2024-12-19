@@ -81,17 +81,17 @@ export class UserService {
       },
     });
 
-    const nameSplitted = registerRequest.name.split(' ');
+    const capitalize = (str: string) => str[0].toUpperCase() + str.slice(1);
 
+    const nameSplitted = registerRequest.name.split(' ');
     const generatedUsername = registeredUser.email.split('@')[0];
+
     const generatedFirstname = nameSplitted
-      .filter((_, index) => index < 2)
-      .map((name) => name)
+      .slice(0, 2)
+      .map(capitalize)
       .join(' ');
-    const generatedLastname = nameSplitted
-      .filter((_, index) => index >= 2)
-      .map((name) => name)
-      .join(' ');
+
+    const generatedLastname = nameSplitted.slice(2).map(capitalize).join(' ');
 
     await this.prismaService.profile.create({
       data: {
@@ -181,7 +181,6 @@ export class UserService {
         },
       );
 
-      console.log(response);
       this.logger.info(`Response status ${response.status}`);
 
       if (response.status === 201) {
@@ -239,12 +238,14 @@ export class UserService {
       this.logger.info(`Response status ${response.status}`);
 
       if (response.status === 200) {
-        this.logger.info('Successfully predicted face');
+        this.logger.info(
+          `Successfully predicted face with confidence of ${response.data.confidence}`,
+        );
 
-        const confidenceVal = response.data.confidence;
+        // const confidenceVal = response.data.confidence;
 
-        if (confidenceVal < 0.5)
-          throw new InvariantException('Confidence value is less than 0.5');
+        // if (confidenceVal < 0.5)
+        //   throw new InvariantException('Confidence value is less than 0.5');
 
         return await this.prismaService.user.findFirst({
           where: {
@@ -359,13 +360,15 @@ export class UserService {
         "Cannot update user, your password isn't match with your previous password",
       );
 
+    const newHashedPassword = await bcrypt.hash(updateRequest.password, 10);
+
     await this.prismaService.user.update({
       where: {
         id: userId,
       },
       data: {
         email: updateRequest.email,
-        password: updateRequest.password,
+        password: newHashedPassword,
       },
     });
   }
@@ -397,15 +400,13 @@ export class UserService {
       },
     });
 
+    const capitalize = (str: string) => str[0].toUpperCase() + str.slice(1);
     const nameSplitted = updateRequest.name.split(' ');
     const generatedFirstname = nameSplitted
-      .filter((_, index) => index < 2)
-      .map((name) => name)
+      .slice(0, 2)
+      .map(capitalize)
       .join(' ');
-    const generatedLastname = nameSplitted
-      .filter((_, index) => index >= 2)
-      .map((name) => name)
-      .join(' ');
+    const generatedLastname = nameSplitted.slice(2).map(capitalize).join(' ');
 
     await this.prismaService.profile.update({
       where: {

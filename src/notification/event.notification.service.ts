@@ -89,4 +89,24 @@ export class EventNotificationService {
       });
     });
   }
+
+  async remove(eventId: string, userId: string): Promise<boolean> {
+    const eventNotification =
+      await this.prismaService.eventNotification.findFirst({
+        where: {
+          event_id: eventId,
+          recipient_id: userId,
+        },
+      });
+
+    if (!eventNotification) return false;
+
+    await this.prismaService.eventNotification.delete({
+      where: {
+        id: eventNotification.id,
+      },
+    });
+
+    return true;
+  }
 }

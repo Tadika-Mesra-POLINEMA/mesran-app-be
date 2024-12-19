@@ -17,6 +17,8 @@ export class CronService {
   async handleCron() {
     this.logger.info('Notify user about the event');
 
+    const today = new Date();
+
     const twoDayLater = new Date();
     twoDayLater.setDate(twoDayLater.getDate() + 2);
 
@@ -32,7 +34,20 @@ export class CronService {
       },
     });
 
-    events.forEach((event) => {
+    events.forEach(async (event) => {
+      const eventDate = new Date(event.target_date);
+
+      if (eventDate.getDate() < today.getDate()) {
+        await this.prismaService.event.update({
+          where: {
+            id: event.id,
+          },
+          data: {
+            is_done: true,
+          },
+        });
+      }
+
       this.eventNotificationService.notifyEvent(event);
     });
   }

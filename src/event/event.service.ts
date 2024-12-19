@@ -6,7 +6,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 
 // Services
 import { PrismaService } from 'src/common/prisma.service';
-import { EventWithDetail } from './entities/event.entity';
+import { EventWithDetail, Event } from './entities/event.entity';
 import { InviteEventResponseDto } from './dto/invite-event.dto';
 import { EventNotificationService } from 'src/notification/event.notification.service';
 
@@ -259,6 +259,94 @@ export class EventService {
     };
   }
 
+  async findInvites(userId: string): Promise<EventWithDetail[]> {
+    this.logger.info('Finding invites');
+
+    const events = await this.prismaService.event.findMany({
+      where: {
+        NOT: [{ user_id: userId }],
+        participants: {
+          some: {
+            user_id: userId,
+          },
+        },
+        OR: [{ is_done: false }, { is_canceled: false }],
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+          },
+        },
+        participants: {
+          where: {
+            accepted: true,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                phone: true,
+                profile: {
+                  select: {
+                    username: true,
+                    firstname: true,
+                    lastname: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        activities: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            activity_start: true,
+            activity_end: true,
+          },
+        },
+      },
+    });
+
+    this.logger.info('Invites found', { events });
+
+    return events.map((event) => {
+      return {
+        ...event,
+        is_owner: false,
+      };
+    });
+  }
+
+  /**
+   * Get event history by user
+   *
+   * @param userId User id used to get event history
+   * @returns Event history
+   */
+  async getEventHistoryByUser(userId: string): Promise<Event[]> {
+    this.logger.info('Getting event history by user', { userId });
+
+    const events = await this.prismaService.event.findMany({
+      where: {
+        user_id: userId,
+        participants: {
+          some: {
+            user_id: userId,
+          },
+        },
+        OR: [{ is_done: true }, { is_canceled: true }],
+      },
+    });
+
+    return events;
+  }
+
   /**
    * Get event to invite
    *
@@ -313,8 +401,6 @@ export class EventService {
         target_date: request.target_date,
         location: request.location,
         event_start: request.event_start,
-        dress: request.dress,
-        theme: request.theme,
       },
     });
 

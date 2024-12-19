@@ -272,7 +272,7 @@ export class ParticipantService {
       },
     });
 
-    await this.prismaService.event.update({
+    const eventDetail = await this.prismaService.event.update({
       where: {
         id: event.event_id,
       },
@@ -283,10 +283,23 @@ export class ParticipantService {
       },
     });
 
-    await this.prismaService.eventNotification.deleteMany({
+    this.logger.info('Participant accepted');
+
+    const notification = await this.prismaService.eventNotification.findFirst({
       where: {
-        event_id: event.id,
-        recipient_id: event.event.user_id,
+        event_id: eventDetail.id,
+        recipient_id: eventDetail.user_id,
+        type: 'CONFIRMATION',
+      },
+    });
+
+    this.logger.info(
+      `Deleting notification for accepted participant ${notification.id}`,
+    );
+
+    await this.prismaService.eventNotification.delete({
+      where: {
+        id: notification.id,
       },
     });
 
@@ -306,12 +319,16 @@ export class ParticipantService {
   async decline(participantId: string) {
     this.logger.info('Declining a participant');
 
-    const event = await this.prismaService.eventParticipant.findFirst({
+    const eventParticipant =
+      await this.prismaService.eventParticipant.findFirst({
+        where: {
+          id: participantId,
+        },
+      });
+
+    const event = await this.prismaService.event.findFirst({
       where: {
-        id: participantId,
-      },
-      include: {
-        event: true,
+        id: eventParticipant.event_id,
       },
     });
 
@@ -329,13 +346,14 @@ export class ParticipantService {
 
     await this.prismaService.eventNotification.deleteMany({
       where: {
-        event_id: event.event_id,
-        recipient_id: event.event.user_id,
+        event_id: event.id,
+        recipient_id: event.user_id,
+        type: 'CONFIRMATION',
       },
     });
 
     await this.participantNotificationService.declineParticipantNotification(
-      event.event,
+      event,
       event.user_id,
     );
 

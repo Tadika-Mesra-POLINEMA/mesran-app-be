@@ -37,10 +37,14 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { InvariantException } from '../common/exceptions/invariant.exception';
+import { ParticipantNotificationService } from 'src/notification/participant.notification.service';
 
 @Controller('/api/users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private participantNotificationService: ParticipantNotificationService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

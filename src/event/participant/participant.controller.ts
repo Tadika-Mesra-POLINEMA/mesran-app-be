@@ -19,10 +19,14 @@ import { CreateParticipantResponse } from './dto/create-participant.dto';
 import { VerifyEventOwnerGuard } from '../guard/verify-owner.guard';
 import { Participant } from './entity/participant.entity';
 import { ParticipantAttendance } from './dto/participant-attendance.dto';
+import { EventNotificationService } from 'src/notification/event.notification.service';
 
 @Controller('/api/events/:eventId/participants')
 export class ParticipantController {
-  constructor(private participantService: ParticipantService) {}
+  constructor(
+    private participantService: ParticipantService,
+    private eventNotificationService: EventNotificationService,
+  ) {}
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(RolesGuard)
@@ -134,6 +138,13 @@ export class ParticipantController {
     );
     await this.participantService.attend(participantId);
 
+    const isRemoveSuccess = await this.eventNotificationService.remove(
+      eventId,
+      userId,
+    );
+
+    if (!isRemoveSuccess) throw new Error('Failed to remove notification');
+
     return {
       status: 'success',
       message: 'Participant attended',
@@ -155,6 +166,13 @@ export class ParticipantController {
     );
 
     await this.participantService.absence(participantId);
+
+    const isRemoveSuccess = await this.eventNotificationService.remove(
+      eventId,
+      userId,
+    );
+
+    if (!isRemoveSuccess) throw new Error('Failed to remove notification');
 
     return {
       status: 'success',

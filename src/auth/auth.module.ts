@@ -4,6 +4,8 @@ import { AuthController } from 'src/auth/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from 'src/mail/mail.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -14,7 +16,13 @@ import { CacheModule } from '@nestjs/cache-manager';
     }),
     MailModule,
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

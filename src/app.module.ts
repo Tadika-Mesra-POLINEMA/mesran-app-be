@@ -7,9 +7,16 @@ import { EventModule } from './event/event.module';
 import { NotificationModule } from './notification/notification.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './common/cron.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 30,
+      },
+    ]),
     UserModule,
     CommonModule,
     MailModule,

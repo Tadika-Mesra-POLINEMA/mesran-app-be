@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { MailModule } from 'src/mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   controllers: [UserController],
@@ -17,6 +18,7 @@ import { HttpModule } from '@nestjs/axios';
       baseURL: process.env.MACHINE_LEARNING_BASE_URL,
       maxRedirects: 5,
     }),
+    NotificationModule,
   ],
   providers: [UserService],
 })

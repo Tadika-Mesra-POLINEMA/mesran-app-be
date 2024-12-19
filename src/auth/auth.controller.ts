@@ -22,11 +22,13 @@ import {
 } from 'src/auth/dto/verify-login.dto';
 import { RefreshRequest, RefreshResponse } from 'src/auth/dto/renew-token.dto';
 import { LogoutRequest } from 'src/auth/dto/logout.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('/api/authentications')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('/')
   @HttpCode(HttpStatus.OK)
   async login(

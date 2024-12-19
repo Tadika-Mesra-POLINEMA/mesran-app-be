@@ -30,7 +30,7 @@ import { Roles } from 'src/auth/decorators/role.decorator';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { VerifyEventOwnerGuard } from './guard/verify-owner.guard';
 import { ManyEventDto, SingleEventDto } from './dto/get-event.dto';
-import { EventWithDetail } from './entities/event.entity';
+import { EventWithDetail, Event } from './entities/event.entity';
 import { ParticipantService } from './participant/participant.service';
 import { InviteEventResponseDto } from './dto/invite-event.dto';
 
@@ -110,9 +110,7 @@ export class EventController {
     return {
       status: 'success',
       message: 'Events retrieved successfully',
-      data: {
-        events,
-      },
+      data: { events },
     };
   }
 
@@ -134,6 +132,41 @@ export class EventController {
       data: {
         events,
       },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('invites')
+  async getInvites(
+    @Request() request: AuthenticatedRequest,
+  ): Promise<WebResponse<ManyEventDto<EventWithDetail>>> {
+    const userId = request.user.id;
+    const events = await this.eventService.findInvites(userId);
+
+    return {
+      status: 'success',
+      message: 'Events retrieved successfully',
+      data: {
+        events,
+      },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('history')
+  async getEventHistory(
+    @Request() request: AuthenticatedRequest,
+  ): Promise<WebResponse<Event[]>> {
+    const events = await this.eventService.getEventHistoryByUser(
+      request.user.id,
+    );
+
+    return {
+      status: 'success',
+      message: 'Events retrieved successfully',
+      data: events,
     };
   }
 
@@ -163,6 +196,7 @@ export class EventController {
     @Body() updateEventDto: UpdateEventDto,
     @Param('eventId') eventId: string,
   ): Promise<WebResponse<null>> {
+    console.log('updateEventDto', updateEventDto);
     const updateEventRequest = this.validationService.validate(
       EventValidator.UPDATE_EVENT,
       updateEventDto,

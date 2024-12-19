@@ -10,5 +10,4 @@ export class PhoneLogin {
 
 export class LoginResponse {
   verificationKey: string;
-  otp: string;
 }
